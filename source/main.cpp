@@ -53,17 +53,16 @@ struct State {
   bool isMovingForward;
   bool isRotatingLeft;
   bool isRotatingRight;
-  float presentedTime;
   Transform robot;
 
   State() {
     controlMode = Robot;
     isMovingForward = false;
-    presentedTime = 0;
     robot = {{0, 0, 0}, {0, 0, 0}};
   }
 };
 
+float presentedTime = 0;
 State state = State();
 
 void drawAxis() {
@@ -153,10 +152,7 @@ void keyboardUpFunc(unsigned char key, int x, int y) {
   }
 }
 
-void idleFunc() {
-  float currentTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0;
-  float deltaTime = currentTime - state.presentedTime;
-
+void updatedState(State &currentState, float deltaTime) {
   Transform controlTranform = {{0, 0, 0}, {0, 0, 0}};
   if (state.isMovingForward) {
     controlTranform.position.y += ROBOT_SPEED * deltaTime;
@@ -173,8 +169,15 @@ void idleFunc() {
   if (state.controlMode == Robot) {
     state.robot += controlTranform;
   }
+}
 
-  state.presentedTime = currentTime;
+void idleFunc() {
+  float currentTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0;
+  float deltaTime = currentTime - presentedTime;
+
+  updatedState(state, deltaTime);
+
+  presentedTime = currentTime;
   glutPostRedisplay();
 }
 
