@@ -1,17 +1,21 @@
 #include <GL/freeglut_std.h>
 #include <GL/glu.h>
 #include <GL/glut.h>
+
+#include <cmath>
 #include <cstdio>
 
 #define ROBOT_SPEED 1
-#define ROTATION_SPEED 100
+#define ROBOT_ROTATION_SPEED 10
+#define CAMERA_ROTATION_SPEED 1
 
 enum ControlMode { Robot, Camera };
 
 struct Point {
-  float x;
-  float y;
-  float z;
+  Point(double x, double y, double z) : x(x), y(y), z(z) {}
+  double x;
+  double y;
+  double z;
 
   Point operator+(const Point &other) {
     return {x + other.x, y + other.y, z + other.z};
@@ -23,10 +27,21 @@ struct Point {
     z += other.z;
     return *this;
   }
+
+  Point operator-(const Point &other) {
+    return {x - other.x, y - other.y, z - other.z};
+  }
+
+  Point operator*(double scalar) {
+    return {x * scalar, y * scalar, z * scalar};
+  }
 };
 struct Transform {
   Point position;
   Point orientation;
+
+  Transform(Point position, Point orientation)
+      : position(position), orientation(orientation) {}
 
   Transform operator+(const Transform &other) {
     return {position + other.position, orientation + other.orientation};
@@ -40,7 +55,7 @@ struct Transform {
 };
 
 void clearMatrices();
-void setupCamera();
+void setupCamera(Transform camera);
 void displayFunc();
 void displayRobot(Transform transform);
 void drawAxis();
@@ -54,15 +69,15 @@ struct State {
   bool isRotatingLeft;
   bool isRotatingRight;
   Transform robot;
+  Transform camera;
 
-  State() {
-    controlMode = Robot;
-    isMovingForward = false;
-    robot = {{0, 0, 0}, {0, 0, 0}};
-  }
+  State()
+      : controlMode(Robot), isMovingForward(false), isRotatingLeft(false),
+        isRotatingRight(false), robot({{0, 0, 0}, {1,0,1}}),
+        camera({{5, 5, 5}, {-5, -5, -5}}) {}
 };
 
-float presentedTime = 0;
+double presentedTime = 0;
 State state = State();
 
 void drawAxis() {
@@ -70,17 +85,17 @@ void drawAxis() {
   // y-axis (green)
   glColor3f(0, 1, 0);
   glVertex3f(0, 0, 0);
-  glVertex3f(0, 5, 0);
+  glVertex3f(0, 100, 0);
 
   // x-axis (red)
   glColor3f(1, 0, 0);
   glVertex3f(0, 0, 0);
-  glVertex3f(5, 0, 0);
+  glVertex3f(100, 0, 0);
 
   // z-axis (blue)
   glColor3f(0, 0, 1);
   glVertex3f(0, 0, 0);
-  glVertex3f(0, 0, 5);
+  glVertex3f(0, 0, 100);
   glEnd();
 }
 
@@ -90,15 +105,21 @@ void setupProjection() {
   gluPerspective(45, 1, 1, 100);
 }
 
-void setupCamera() {
+void gluLookAt(Point camera, Point target, Point up) {
+  gluLookAt(camera.x, camera.y, camera.z, target.x, target.y, target.z, up.x,
+            up.y, up.z);
+}
+
+void setupCamera(Transform camera) {
   glMatrixMode(GL_MODELVIEW);
-  gluLookAt(0, 0, 10, 0, 0, 1, 0, 1, 0);
+  gluLookAt(camera.position, camera.position + camera.orientation,
+            Point(0, 1, 0));
 }
 
 void displayFunc() {
   glClear(GL_COLOR_BUFFER_BIT);
   clearMatrices();
-  setupCamera();
+  setupCamera(state.camera);
   setupProjection();
   drawAxis();
   displayRobot(state.robot);
@@ -117,9 +138,10 @@ void displayRobot(Transform transform) {
   glPushMatrix();
   glTranslatef(transform.position.x, transform.position.y,
                transform.position.z);
-  glRotatef(transform.orientation.x, 1, 0, 0);
-  glRotatef(transform.orientation.y, 0, 1, 0);
-  glRotatef(transform.orientation.z, 0, 0, 1);
+  // glRotatef(transform.orientation.x, 1, 0, 0);
+  // glRotatef(transform.orientation.y, 0, 1, 0);
+  // glRotatef(transform.orientation.z, 0, 0, 1);
+  glRotated(1, transform.orientation.x, transform.orientation.y, transform.orientation.z);
   glutSolidTetrahedron();
   glPopMatrix();
 }
@@ -135,6 +157,10 @@ void keyboardFunc(unsigned char key, int x, int y) {
 
   if (key == 'd') {
     state.isRotatingRight = true;
+  }
+
+  if (key == ' ') {
+    state.controlMode = state.controlMode == Robot ? Camera : Robot;
   }
 }
 
@@ -152,28 +178,64 @@ void keyboardUpFunc(unsigned char key, int x, int y) {
   }
 }
 
-void updatedState(State &currentState, float deltaTime) {
-  Transform controlTranform = {{0, 0, 0}, {0, 0, 0}};
-  if (state.isMovingForward) {
-    controlTranform.position.y += ROBOT_SPEED * deltaTime;
+Point rotateAroundAxis(Point point, Point axis, double angle) {
+    double cosA = cos(angle);
+    double sinA = sin(angle);
+    double oneMinusCosA = 1 - cosA;
+
+    double x = point.x, y = point.y, z = point.z;
+    double u = axis.x, v = axis.y, w = axis.z;
+
+    double newX = u*(u*x + v*y + w*z)*(oneMinusCosA) + x*cosA + (-w*y + v*z)*sinA;
+    double newY = v*(u*x + v*y + w*z)*(oneMinusCosA) + y*cosA + (w*x - u*z)*sinA;
+    double newZ = w*(u*x + v*y + w*z)*(oneMinusCosA) + z*cosA + (-v*x + u*y)*sinA;
+
+    return {newX, newY, newZ};
+}
+
+Point rotatedAroundYAxis(Point point, double angle) {
+  // return {point.x * cos(angle) + point.z * sin(angle), point.y,
+  //         -point.x * sin(angle) + point.z * cos(angle)};
+  return rotateAroundAxis(point, {1, 0, 0}, angle);
+}
+
+void move(Transform &t, bool isMovingForward, bool isRotatingLeft,
+          bool isRotatingRight, double deltaTime, double rotationSpeed) {
+  if (isMovingForward) {
+    t.position += t.orientation * ROBOT_SPEED * deltaTime;
   }
 
-  if (state.isRotatingLeft) {
-    controlTranform.orientation.z += ROTATION_SPEED * deltaTime;
+  if (isMovingForward) {
+    t.position += t.orientation * ROBOT_SPEED * deltaTime;
   }
 
-  if (state.isRotatingRight) {
-    controlTranform.orientation.z -= ROTATION_SPEED * deltaTime;
+  if (isRotatingLeft) {
+    t.orientation =
+        rotatedAroundYAxis(t.orientation, rotationSpeed * deltaTime);
   }
 
-  if (state.controlMode == Robot) {
-    state.robot += controlTranform;
+  if (isRotatingRight) {
+    t.orientation =
+        rotatedAroundYAxis(t.orientation, -rotationSpeed * deltaTime);
+  }
+}
+
+void updatedState(State &currentState, double deltaTime) {
+  switch (state.controlMode) {
+  case Robot:
+    move(state.robot, state.isMovingForward, state.isRotatingLeft,
+         state.isRotatingRight, deltaTime, ROBOT_ROTATION_SPEED);
+    break;
+  case Camera:
+    move(state.camera, state.isMovingForward, state.isRotatingLeft,
+         state.isRotatingRight, deltaTime, CAMERA_ROTATION_SPEED);
+    break;
   }
 }
 
 void idleFunc() {
-  float currentTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0;
-  float deltaTime = currentTime - presentedTime;
+  double currentTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0;
+  double deltaTime = currentTime - presentedTime;
 
   updatedState(state, deltaTime);
 
