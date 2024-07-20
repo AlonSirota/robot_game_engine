@@ -4,33 +4,67 @@
 #include <cstdio>
 
 #define ROBOT_SPEED 1
+#define ROTATION_SPEED 100
 
-void clearMatrices();
-void setupCamera();
-void displayFunc();
-void displayHead();
-void drawAxis();
-void keyboardFunc(unsigned char key, int x, int y);
-void keyboardUpFunc(unsigned char key, int x, int y);
-void idleFunc();
+enum ControlMode { Robot, Camera };
 
 struct Point {
   float x;
   float y;
   float z;
+
+  Point operator+(const Point &other) {
+    return {x + other.x, y + other.y, z + other.z};
+  }
+
+  Point operator+=(const Point &other) {
+    x += other.x;
+    y += other.y;
+    z += other.z;
+    return *this;
+  }
 };
+struct Transform {
+  Point position;
+  Point orientation;
+
+  Transform operator+(const Transform &other) {
+    return {position + other.position, orientation + other.orientation};
+  }
+
+  Transform operator+=(const Transform &other) {
+    position += other.position;
+    orientation += other.orientation;
+    return *this;
+  }
+};
+
+void clearMatrices();
+void setupCamera();
+void displayFunc();
+void displayRobot(Transform transform);
+void drawAxis();
+void keyboardFunc(unsigned char key, int x, int y);
+void keyboardUpFunc(unsigned char key, int x, int y);
+void idleFunc();
 
 struct State {
+  ControlMode controlMode;
   bool isMovingForward;
+  bool isRotatingLeft;
+  bool isRotatingRight;
   float presentedTime;
-  Point robotPosition;
+  Transform robot;
 
-  State(bool isMovingForward, float presentedTime, Point robotPosition)
-      : isMovingForward(isMovingForward), presentedTime(presentedTime),
-        robotPosition(robotPosition) {}
+  State() {
+    controlMode = Robot;
+    isMovingForward = false;
+    presentedTime = 0;
+    robot = {{0, 0, 0}, {0, 0, 0}};
+  }
 };
 
-static State state = State(false, 0, Point{0, 0, 0});
+State state = State();
 
 void drawAxis() {
   glBegin(GL_LINES);
@@ -68,7 +102,7 @@ void displayFunc() {
   setupCamera();
   setupProjection();
   drawAxis();
-  displayHead();
+  displayRobot(state.robot);
   glFlush();
 }
 
@@ -79,10 +113,14 @@ void clearMatrices() {
   glLoadIdentity();
 }
 
-void displayHead() {
+void displayRobot(Transform transform) {
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
-  glTranslatef(state.robotPosition.x, state.robotPosition.y, state.robotPosition.z);
+  glTranslatef(transform.position.x, transform.position.y,
+               transform.position.z);
+  glRotatef(transform.orientation.x, 1, 0, 0);
+  glRotatef(transform.orientation.y, 0, 1, 0);
+  glRotatef(transform.orientation.z, 0, 0, 1);
   glutSolidTetrahedron();
   glPopMatrix();
 }
@@ -91,11 +129,27 @@ void keyboardFunc(unsigned char key, int x, int y) {
   if (key == 'w') {
     state.isMovingForward = true;
   }
+
+  if (key == 'a') {
+    state.isRotatingLeft = true;
+  }
+
+  if (key == 'd') {
+    state.isRotatingRight = true;
+  }
 }
 
 void keyboardUpFunc(unsigned char key, int x, int y) {
   if (key == 'w') {
     state.isMovingForward = false;
+  }
+
+  if (key == 'a') {
+    state.isRotatingLeft = false;
+  }
+
+  if (key == 'd') {
+    state.isRotatingRight = false;
   }
 }
 
@@ -103,8 +157,21 @@ void idleFunc() {
   float currentTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0;
   float deltaTime = currentTime - state.presentedTime;
 
+  Transform controlTranform = {{0, 0, 0}, {0, 0, 0}};
   if (state.isMovingForward) {
-    state.robotPosition.y += ROBOT_SPEED * deltaTime;
+    controlTranform.position.y += ROBOT_SPEED * deltaTime;
+  }
+
+  if (state.isRotatingLeft) {
+    controlTranform.orientation.z += ROTATION_SPEED * deltaTime;
+  }
+
+  if (state.isRotatingRight) {
+    controlTranform.orientation.z -= ROTATION_SPEED * deltaTime;
+  }
+
+  if (state.controlMode == Robot) {
+    state.robot += controlTranform;
   }
 
   state.presentedTime = currentTime;
