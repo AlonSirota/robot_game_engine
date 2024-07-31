@@ -3,7 +3,7 @@
 #include <GL/glut.h>
 
 #include <cmath>
-#include <cstdio>
+#include <iostream>
 
 #define ROBOT_SPEED 1
 #define ROBOT_ROTATION_SPEED 10
@@ -36,22 +36,75 @@ struct Point {
     return {x * scalar, y * scalar, z * scalar};
   }
 };
+
+struct Quaternion {
+  // Member variables
+  double w, x, y, z;
+
+  // Constructor
+  Quaternion(double w = 1.0, double x = 0.0, double y = 0.0, double z = 0.0)
+      : w(w), x(x), y(y), z(z) {}
+
+  Quaternion(double angle, Point axis) {
+    w = std::cos(angle / 2);
+    x = axis.x * std::sin(angle / 2);
+    y = axis.y * std::sin(angle / 2);
+    z = axis.z * std::sin(angle / 2);
+  }
+
+  // Quaternion multiplication
+  Quaternion operator*(const Quaternion &q) const {
+    return Quaternion(w * q.w - x * q.x - y * q.y - z * q.z,
+                      w * q.x + x * q.w + y * q.z - z * q.y,
+                      w * q.y - x * q.z + y * q.w + z * q.x,
+                      w * q.z + x * q.y - y * q.x + z * q.w);
+  }
+
+  // Scalar multiplication
+  Quaternion operator*(double scalar) const {
+    return Quaternion(w * scalar, x * scalar, y * scalar, z * scalar);
+  }
+
+  // Scalar division
+  Quaternion operator/(double scalar) const {
+    return Quaternion(w / scalar, x / scalar, y / scalar, z / scalar);
+  }
+
+  // Conjugate of the quaternion
+  Quaternion conjugate() const { return Quaternion(w, -x, -y, -z); }
+
+  // Magnitude (norm) of the quaternion
+  double magnitude() const { return std::sqrt(w * w + x * x + y * y + z * z); }
+
+  // Normalization of the quaternion
+  Quaternion normalize() const {
+    double mag = magnitude();
+    return Quaternion(w / mag, x / mag, y / mag, z / mag);
+  }
+
+  // Inverse of the quaternion
+  Quaternion inverse() const {
+    return conjugate() / (magnitude() * magnitude());
+  }
+
+  Point rotatePoint(const Point &point) const {
+    Quaternion p(0, point.x, point.y, point.z);
+    Quaternion q = (*this) * p * inverse();
+    return {q.x, q.y, q.z};
+  }
+
+  // Display the quaternion
+  void display() const {
+    std::cout << "Quaternion: (" << w << ", " << x << ", " << y << ", " << z
+              << ")\n";
+  }
+};
 struct Transform {
   Point position;
-  Point orientation;
+  Quaternion quaternion;
 
-  Transform(Point position, Point orientation)
-      : position(position), orientation(orientation) {}
-
-  Transform operator+(const Transform &other) {
-    return {position + other.position, orientation + other.orientation};
-  }
-
-  Transform operator+=(const Transform &other) {
-    position += other.position;
-    orientation += other.orientation;
-    return *this;
-  }
+  Transform(Point position, Quaternion quaternion)
+      : position(position), quaternion(quaternion) {}
 };
 
 void clearMatrices();
@@ -73,8 +126,8 @@ struct State {
 
   State()
       : controlMode(Robot), isMovingForward(false), isRotatingLeft(false),
-        isRotatingRight(false), robot({{0, 0, 0}, {1,0,1}}),
-        camera({{5, 5, 5}, {-5, -5, -5}}) {}
+        isRotatingRight(false), robot({{0, 0, 0}, {1, 0, 1}}),
+        camera({{5,5,5}, Quaternion(0.88, -0.325, 0.325,0)}) {}
 };
 
 double presentedTime = 0;
@@ -112,8 +165,10 @@ void gluLookAt(Point camera, Point target, Point up) {
 
 void setupCamera(Transform camera) {
   glMatrixMode(GL_MODELVIEW);
-  gluLookAt(camera.position, camera.position + camera.orientation,
-            Point(0, 1, 0));
+  Point direction = camera.quaternion.rotatePoint({0, 0, -1});
+  Point target = camera.position + direction;
+  Point up = camera.quaternion.rotatePoint({0, 1, 0});
+  gluLookAt(camera.position, target, up);
 }
 
 void displayFunc() {
@@ -133,15 +188,14 @@ void clearMatrices() {
   glLoadIdentity();
 }
 
-void displayRobot(Transform transform) {
+void displayRobot(Transform robotTransform) {
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
-  glTranslatef(transform.position.x, transform.position.y,
-               transform.position.z);
+  glTranslatef(robotTransform.position.x, robotTransform.position.y,
+               robotTransform.position.z);
   // glRotatef(transform.orientation.x, 1, 0, 0);
   // glRotatef(transform.orientation.y, 0, 1, 0);
   // glRotatef(transform.orientation.z, 0, 0, 1);
-  glRotated(1, transform.orientation.x, transform.orientation.y, transform.orientation.z);
   glutSolidTetrahedron();
   glPopMatrix();
 }
@@ -178,45 +232,21 @@ void keyboardUpFunc(unsigned char key, int x, int y) {
   }
 }
 
-Point rotateAroundAxis(Point point, Point axis, double angle) {
-    double cosA = cos(angle);
-    double sinA = sin(angle);
-    double oneMinusCosA = 1 - cosA;
-
-    double x = point.x, y = point.y, z = point.z;
-    double u = axis.x, v = axis.y, w = axis.z;
-
-    double newX = u*(u*x + v*y + w*z)*(oneMinusCosA) + x*cosA + (-w*y + v*z)*sinA;
-    double newY = v*(u*x + v*y + w*z)*(oneMinusCosA) + y*cosA + (w*x - u*z)*sinA;
-    double newZ = w*(u*x + v*y + w*z)*(oneMinusCosA) + z*cosA + (-v*x + u*y)*sinA;
-
-    return {newX, newY, newZ};
-}
-
-Point rotatedAroundYAxis(Point point, double angle) {
-  // return {point.x * cos(angle) + point.z * sin(angle), point.y,
-  //         -point.x * sin(angle) + point.z * cos(angle)};
-  return rotateAroundAxis(point, {1, 0, 0}, angle);
-}
-
 void move(Transform &t, bool isMovingForward, bool isRotatingLeft,
           bool isRotatingRight, double deltaTime, double rotationSpeed) {
   if (isMovingForward) {
-    t.position += t.orientation * ROBOT_SPEED * deltaTime;
-  }
-
-  if (isMovingForward) {
-    t.position += t.orientation * ROBOT_SPEED * deltaTime;
+    t.position +=
+        t.quaternion.rotatePoint(Point(0, 0, 1)) * ROBOT_SPEED * deltaTime;
   }
 
   if (isRotatingLeft) {
-    t.orientation =
-        rotatedAroundYAxis(t.orientation, rotationSpeed * deltaTime);
+    t.quaternion =
+        t.quaternion * Quaternion(rotationSpeed * deltaTime, Point(0, 1, 0));
   }
 
   if (isRotatingRight) {
-    t.orientation =
-        rotatedAroundYAxis(t.orientation, -rotationSpeed * deltaTime);
+    t.quaternion =
+        t.quaternion * Quaternion(-rotationSpeed * deltaTime, Point(0, 1, 0));
   }
 }
 
