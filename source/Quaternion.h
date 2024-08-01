@@ -28,11 +28,6 @@ struct Quaternion {
                       w * q.z + x * q.y - y * q.x + z * q.w);
   }
 
-  // Scalar multiplication
-  Quaternion operator*(double scalar) const {
-    return Quaternion(w * scalar, x * scalar, y * scalar, z * scalar);
-  }
-
   // Scalar division
   Quaternion operator/(double scalar) const {
     return Quaternion(w / scalar, x / scalar, y / scalar, z / scalar);
