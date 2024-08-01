@@ -6,7 +6,7 @@
 #include <iostream>
 
 #define ROBOT_SPEED 1
-#define ROBOT_ROTATION_SPEED 10
+#define ROBOT_ROTATION_SPEED 3
 #define CAMERA_ROTATION_SPEED 1
 
 #define TARGET_FRAME_RATE 60
@@ -96,6 +96,27 @@ struct Quaternion {
     return {q.x, q.y, q.z};
   }
 
+  GLfloat *toMatrix() const {
+    GLfloat *matrix = new GLfloat[16];
+    matrix[0] = 1 - 2 * y * y - 2 * z * z;
+    matrix[1] = 2 * x * y - 2 * z * w;
+    matrix[2] = 2 * x * z + 2 * y * w;
+    matrix[3] = 0;
+    matrix[4] = 2 * x * y + 2 * z * w;
+    matrix[5] = 1 - 2 * x * x - 2 * z * z;
+    matrix[6] = 2 * y * z - 2 * x * w;
+    matrix[7] = 0;
+    matrix[8] = 2 * x * z - 2 * y * w;
+    matrix[9] = 2 * y * z + 2 * x * w;
+    matrix[10] = 1 - 2 * x * x - 2 * y * y;
+    matrix[11] = 0;
+    matrix[12] = 0;
+    matrix[13] = 0;
+    matrix[14] = 0;
+    matrix[15] = 1;
+    return matrix;
+  }
+
   // Display the quaternion
   void display() const {
     std::cout << "Quaternion: (" << w << ", " << x << ", " << y << ", " << z
@@ -130,7 +151,7 @@ struct State {
 
   State()
       : controlMode(Robot), isMovingForward(false), isRotatingLeft(false),
-        isRotatingRight(false), robot({{0, 0, 0}, {1, 0, 1}}),
+        isRotatingRight(false), robot({{0, 0, 0}, {1, 0, 0}}),
         camera({{5,5,5}, Quaternion(0.88, -0.325, 0.325,0)}) {}
 };
 
@@ -209,9 +230,7 @@ void displayRobot(Transform robotTransform) {
   glPushMatrix();
   glTranslatef(robotTransform.position.x, robotTransform.position.y,
                robotTransform.position.z);
-  // glRotatef(transform.orientation.x, 1, 0, 0);
-  // glRotatef(transform.orientation.y, 0, 1, 0);
-  // glRotatef(transform.orientation.z, 0, 0, 1);
+  glMultMatrixf(robotTransform.quaternion.toMatrix());
   glutSolidTetrahedron();
   glPopMatrix();
 }
