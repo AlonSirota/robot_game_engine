@@ -2,23 +2,11 @@
 #include <GL/glu.h>
 #include <GL/glut.h>
 #include "Quaternion.h"
+#include "State.h"
 
-#define ROBOT_SPEED 1
-#define ROBOT_ROTATION_SPEED 3
-#define CAMERA_ROTATION_SPEED 1
 
 #define TARGET_FRAME_RATE 60
 #define TARGET_DELTA_BETWEEN_FRAMES_MS (1000.0 / TARGET_FRAME_RATE);
-
-enum ControlMode { Robot, Camera };
-
-struct Transform {
-  Point position;
-  Quaternion quaternion;
-
-  Transform(Point position, Quaternion quaternion)
-      : position(position), quaternion(quaternion) {}
-};
 
 void clearMatrices();
 void setupCamera(Transform camera);
@@ -29,20 +17,6 @@ void keyboardFunc(unsigned char key, int x, int y);
 void keyboardUpFunc(unsigned char key, int x, int y);
 void idleFunc();
 void PostRedisplayWrapper(int);
-
-struct State {
-  ControlMode controlMode;
-  bool isMovingForward;
-  bool isRotatingLeft;
-  bool isRotatingRight;
-  Transform robot;
-  Transform camera;
-
-  State()
-      : controlMode(Robot), isMovingForward(false), isRotatingLeft(false),
-        isRotatingRight(false), robot({{0, 0, 0}, {1, 0, 0}}),
-        camera({{5,5,5}, Quaternion(0.88, -0.325, 0.325,0)}) {}
-};
 
 double presentedTime = 0;
 State state = State();
@@ -153,37 +127,6 @@ void keyboardUpFunc(unsigned char key, int x, int y) {
 
   if (key == 'd') {
     state.isRotatingRight = false;
-  }
-}
-
-void move(Transform &t, bool isMovingForward, bool isRotatingLeft,
-          bool isRotatingRight, double deltaTime, double rotationSpeed) {
-  if (isMovingForward) {
-    t.position +=
-        t.quaternion.rotatePoint(Point(0, 0, 1)) * ROBOT_SPEED * deltaTime;
-  }
-
-  if (isRotatingLeft) {
-    t.quaternion =
-        t.quaternion * Quaternion(rotationSpeed * deltaTime, Point(0, 1, 0));
-  }
-
-  if (isRotatingRight) {
-    t.quaternion =
-        t.quaternion * Quaternion(-rotationSpeed * deltaTime, Point(0, 1, 0));
-  }
-}
-
-void updatedState(State &currentState, double deltaTime) {
-  switch (state.controlMode) {
-  case Robot:
-    move(state.robot, state.isMovingForward, state.isRotatingLeft,
-         state.isRotatingRight, deltaTime, ROBOT_ROTATION_SPEED);
-    break;
-  case Camera:
-    move(state.camera, state.isMovingForward, state.isRotatingLeft,
-         state.isRotatingRight, deltaTime, CAMERA_ROTATION_SPEED);
-    break;
   }
 }
 
