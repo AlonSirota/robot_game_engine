@@ -9,6 +9,9 @@
 #define ROBOT_ROTATION_SPEED 10
 #define CAMERA_ROTATION_SPEED 1
 
+#define TARGET_FRAME_RATE 60
+#define TARGET_DELTA_BETWEEN_FRAMES_MS (1000.0 / TARGET_FRAME_RATE);
+
 enum ControlMode { Robot, Camera };
 
 struct Point {
@@ -115,6 +118,7 @@ void drawAxis();
 void keyboardFunc(unsigned char key, int x, int y);
 void keyboardUpFunc(unsigned char key, int x, int y);
 void idleFunc();
+void PostRedisplayWrapper(int);
 
 struct State {
   ControlMode controlMode;
@@ -172,6 +176,8 @@ void setupCamera(Transform camera) {
 }
 
 void displayFunc() {
+  double frameStartTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0;
+
   glClear(GL_COLOR_BUFFER_BIT);
   clearMatrices();
   setupCamera(state.camera);
@@ -179,6 +185,16 @@ void displayFunc() {
   drawAxis();
   displayRobot(state.robot);
   glFlush();
+
+  double frameEndTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0;
+  double delta = frameEndTime - frameStartTime;
+  double timeToNextFrame = TARGET_DELTA_BETWEEN_FRAMES_MS - delta;
+
+  if(timeToNextFrame <= 0){
+    timeToNextFrame = 0;//TODO: mark frame skipped, add to log
+  }
+
+  glutTimerFunc(timeToNextFrame, PostRedisplayWrapper, 0);
 }
 
 void clearMatrices() {
@@ -270,6 +286,9 @@ void idleFunc() {
   updatedState(state, deltaTime);
 
   presentedTime = currentTime;
+}
+
+void PostRedisplayWrapper(int){
   glutPostRedisplay();
 }
 
@@ -282,7 +301,7 @@ int main(int argc, char **argv) {
   glutIdleFunc(idleFunc);
   glutKeyboardFunc(keyboardFunc);
   glutKeyboardUpFunc(keyboardUpFunc);
-
+  
   glutMainLoop();
   return 0;
 }
