@@ -88,11 +88,26 @@ void clearMatrices() {
   glLoadIdentity();
 }
 
-void displayRobot(Transform robotTransform) {
+void glVertexPoint(Point p) { glVertex3f(p.x, p.y, p.z); }
+
+void glTranslatePoint(Point p) { glTranslatef(p.x, p.y, p.z); }
+
+void displayMovingDirection(Transform t) {
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
-  glTranslatef(robotTransform.position.x, robotTransform.position.y,
-               robotTransform.position.z);
+  glBegin(GL_LINES);
+  glColor3f(1, 0, 0);
+  glVertexPoint(t.position);
+  glVertexPoint(t.position + t.direction() * 2);
+  glEnd();
+  glPopMatrix();
+}
+
+void displayRobot(Transform robotTransform) {
+  displayMovingDirection(robotTransform);
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
+  glTranslatePoint(robotTransform.position);
   glMultMatrixf(robotTransform.quaternion.toMatrix());
   glutSolidTetrahedron();
   glPopMatrix();

@@ -14,6 +14,8 @@ struct Transform {
 
   Transform(Point position, Quaternion quaternion)
       : position(position), quaternion(quaternion) {}
+
+  Point direction() { return quaternion.rotatePoint({0, 0, 1}); }
 };
 
 struct State {
@@ -34,7 +36,7 @@ inline void move(Transform &t, bool isMovingForward, bool isRotatingLeft,
                  bool isRotatingRight, double deltaTime, double rotationSpeed) {
   if (isMovingForward) {
     t.position +=
-        t.quaternion.rotatePoint(Point(0, 0, 1)) * ROBOT_SPEED * deltaTime;
+        t.direction() * ROBOT_SPEED * deltaTime;
   }
 
   if (isRotatingLeft) {
