@@ -57,17 +57,17 @@ struct Quaternion {
   }
 
   GLfloat *toMatrix() const {
-    GLfloat *matrix = new GLfloat[16];
+    GLfloat *matrix = new GLfloat[16]; // TODO: this is a memory leak.
     matrix[0] = 1 - 2 * y * y - 2 * z * z;
-    matrix[1] = 2 * x * y - 2 * z * w;
-    matrix[2] = 2 * x * z + 2 * y * w;
+    matrix[1] = 2 * x * y + 2 * z * w;
+    matrix[2] = 2 * x * z - 2 * y * w;
     matrix[3] = 0;
-    matrix[4] = 2 * x * y + 2 * z * w;
+    matrix[4] = 2 * x * y - 2 * z * w;
     matrix[5] = 1 - 2 * x * x - 2 * z * z;
-    matrix[6] = 2 * y * z - 2 * x * w;
+    matrix[6] = 2 * y * z + 2 * x * w;
     matrix[7] = 0;
-    matrix[8] = 2 * x * z - 2 * y * w;
-    matrix[9] = 2 * y * z + 2 * x * w;
+    matrix[8] = 2 * x * z + 2 * y * w;
+    matrix[9] = 2 * y * z - 2 * x * w;
     matrix[10] = 1 - 2 * x * x - 2 * y * y;
     matrix[11] = 0;
     matrix[12] = 0;
