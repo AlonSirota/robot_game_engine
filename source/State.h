@@ -23,6 +23,7 @@ struct State {
   bool isMovingForward;
   bool isRotatingLeft;
   bool isRotatingRight;
+  bool isMovingBackward;
   Transform robot;
   Transform camera;
 
@@ -32,11 +33,13 @@ struct State {
         camera({{5, 5, 5}, Quaternion(0.88, -0.325, 0.325, 0)}) {}
 };
 
-inline void move(Transform &t, bool isMovingForward, bool isRotatingLeft,
-                 bool isRotatingRight, double deltaTime, double rotationSpeed) {
+inline void move(Transform &t, bool isMovingForward, bool isMovingBackward,
+                 bool isRotatingLeft, bool isRotatingRight, double deltaTime,
+                 double rotationSpeed) {
   if (isMovingForward) {
-    t.position +=
-        t.direction() * ROBOT_SPEED * deltaTime;
+    t.position += t.direction() * ROBOT_SPEED * deltaTime;
+  } else if (isMovingBackward) {
+    t.position -= t.direction() * ROBOT_SPEED * deltaTime;
   }
 
   if (isRotatingLeft) {
@@ -54,13 +57,13 @@ inline void updatedState(State &currentState, double deltaTime) {
   switch (currentState.controlMode) {
   case Robot:
     move(currentState.robot, currentState.isMovingForward,
-         currentState.isRotatingLeft, currentState.isRotatingRight, deltaTime,
-         ROBOT_ROTATION_SPEED);
+         currentState.isMovingBackward, currentState.isRotatingLeft,
+         currentState.isRotatingRight, deltaTime, ROBOT_ROTATION_SPEED);
     break;
   case Camera:
     move(currentState.camera, currentState.isMovingForward,
-         currentState.isRotatingLeft, currentState.isRotatingRight, deltaTime,
-         CAMERA_ROTATION_SPEED);
+         currentState.isMovingBackward, currentState.isRotatingLeft,
+         currentState.isRotatingRight, deltaTime, CAMERA_ROTATION_SPEED);
     break;
   }
 }

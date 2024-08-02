@@ -19,6 +19,13 @@ struct Point {
     return *this;
   }
 
+  Point operator-=(const Point &other) {
+    x -= other.x;
+    y -= other.y;
+    z -= other.z;
+    return *this;
+  }
+
   Point operator-(const Point &other) {
     return {x - other.x, y - other.y, z - other.z};
   }

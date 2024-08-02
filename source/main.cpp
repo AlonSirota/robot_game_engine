@@ -126,6 +126,10 @@ void keyboardFunc(unsigned char key, int x, int y) {
     state.isRotatingRight = true;
   }
 
+  if (key == 's') {
+    state.isMovingBackward = true;
+  }
+
   if (key == ' ') {
     state.controlMode = state.controlMode == Robot ? Camera : Robot;
   }
@@ -142,6 +146,10 @@ void keyboardUpFunc(unsigned char key, int x, int y) {
 
   if (key == 'd') {
     state.isRotatingRight = false;
+  }
+
+  if (key == 's') {
+    state.isMovingBackward = false;
   }
 }
 
