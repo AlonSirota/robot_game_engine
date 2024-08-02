@@ -27,10 +27,13 @@ struct State {
   Transform robot;
   Transform camera;
 
+  bool displayDebugInfo;
+
   State()
       : controlMode(Robot), isMovingForward(false), isRotatingLeft(false),
         isRotatingRight(false), robot({{0, 0, 0}, {1, 0, 0}}),
-        camera({{5, 5, 5}, Quaternion(0.88, -0.325, 0.325, 0)}) {}
+        camera({{5, 5, 5}, Quaternion(0.88, -0.325, 0.325, 0)}),
+        displayDebugInfo(true) {}
 };
 
 inline void move(Transform &t, bool isMovingForward, bool isMovingBackward,

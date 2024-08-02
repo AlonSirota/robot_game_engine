@@ -3,12 +3,15 @@
 #include <GL/glut.h>
 #include "Quaternion.h"
 #include "State.h"
+#include "ui/ui.hpp"
 
 
 #define TARGET_FRAME_RATE 60
 #define TARGET_DELTA_BETWEEN_FRAMES_MS (1000.0 / TARGET_FRAME_RATE);
 
 void clearMatrices();
+void pushMatrices();
+void popMatrices();
 void setupCamera(Transform camera);
 void displayFunc();
 void displayRobot(Transform transform);
@@ -17,9 +20,12 @@ void keyboardFunc(unsigned char key, int x, int y);
 void keyboardUpFunc(unsigned char key, int x, int y);
 void idleFunc();
 void PostRedisplayWrapper(int);
+void displayUI();
 
 double presentedTime = 0;
 State state = State();
+
+UIManager uiManager(&state);
 
 void drawAxis() {
   glBegin(GL_LINES);
@@ -68,6 +74,8 @@ void displayFunc() {
   setupProjection();
   drawAxis();
   displayRobot(state.robot);
+  displayUI();
+
   glFlush();
 
   double frameEndTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0;
@@ -86,6 +94,20 @@ void clearMatrices() {
   glLoadIdentity();
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
+}
+
+void pushMatrices(){
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
+  glMatrixMode(GL_PROJECTION);
+  glPushMatrix();
+}
+
+void popMatrices(){
+  glMatrixMode(GL_MODELVIEW);
+  glPopMatrix();
+  glMatrixMode(GL_PROJECTION);
+  glPopMatrix();
 }
 
 void glVertexPoint(Point p) { glVertex3f(p.x, p.y, p.z); }
@@ -112,6 +134,18 @@ void displayRobot(Transform robotTransform) {
   glutSolidTetrahedron();
   glPopMatrix();
 }
+
+void displayUI(){
+  pushMatrices();
+  clearMatrices();
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  gluOrtho2D(0,1000,0,1000);
+
+  uiManager.Draw();
+
+  popMatrices();
+};
 
 void keyboardFunc(unsigned char key, int x, int y) {
   if (key == 'w') {

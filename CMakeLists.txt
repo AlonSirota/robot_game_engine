@@ -9,7 +9,7 @@ enable_testing()
 find_package(GLUT)
 find_package(OpenGL)
 
-add_executable(RobotGameEngine source/main.cpp)
+add_executable(RobotGameEngine source/main.cpp source/ui/ui.hpp source/ui/ui.cpp)
 
 include_directories( ${OPENGL_INCLUDE_DIRS}  ${GLUT_INCLUDE_DIRS} )
 
