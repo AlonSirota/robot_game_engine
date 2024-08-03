@@ -7,7 +7,10 @@
 
 #define TARGET_FRAME_RATE 60
 #define TARGET_DELTA_BETWEEN_FRAMES_MS (1000.0 / TARGET_FRAME_RATE);
+#define CHECKERBOARD_SIZE 4
 
+GLuint floorTextureId;
+void renderFloor();
 void setupViewport();
 void clearMatrices();
 void pushMatrices();
@@ -76,6 +79,7 @@ void displayFunc() {
   setupProjection();
   drawAxis();
   displayRobot(state.robot);
+  renderFloor();
   displayUI();
 
   glFlush();
@@ -164,6 +168,34 @@ void displayUI() {
   popMatrices();
 };
 
+void renderFloor() {
+  glEnable(GL_TEXTURE_2D);
+  glBindTexture(GL_TEXTURE_2D, floorTextureId);
+
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
+  glScalef(10, 1, 10);
+
+  // The texture is configured to repeat.
+  int textureRepeatCount = 4;
+
+  glColor3f(1, 1, 1);
+  glBegin(GL_QUADS);
+  glNormal3f(0, 1, 0);
+  glTexCoord2f(0, 0);
+  glVertex3f(-1, 0, -1);
+  glTexCoord2f(textureRepeatCount, 0);
+  glVertex3f(1, 0, -1);
+  glTexCoord2f(textureRepeatCount, textureRepeatCount);
+  glVertex3f(1, 0, 1);
+  glTexCoord2f(0, textureRepeatCount);
+  glVertex3f(-1, 0, 1);
+  glEnd();
+
+  glPopMatrix();
+  glDisable(GL_TEXTURE_2D);
+}
+
 void keyboardFunc(unsigned char key, int x, int y) {
   if (key == 'w') {
     state.isMovingForward = true;
@@ -215,6 +247,26 @@ void idleFunc() {
 
 void PostRedisplayWrapper(int) { glutPostRedisplay(); }
 
+void initFloorTexture() {
+  // Initialize checkerboard matrix with white and black squares.
+  GLubyte checkerboard[CHECKERBOARD_SIZE][CHECKERBOARD_SIZE][3];
+  for (int i = 0; i < CHECKERBOARD_SIZE; i++) {
+    for (int j = 0; j < CHECKERBOARD_SIZE; j++) {
+      GLubyte color = ((i + j) % 2 == 0) ? 255 : 0;
+      checkerboard[i][j][0] = color; // Red
+      checkerboard[i][j][1] = color; // Green
+      checkerboard[i][j][2] = color; // Blue
+    }
+  }
+
+  glGenTextures(1, &floorTextureId);
+  glBindTexture(GL_TEXTURE_2D, floorTextureId);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, CHECKERBOARD_SIZE, CHECKERBOARD_SIZE,
+               0, GL_RGB, GL_UNSIGNED_BYTE, checkerboard);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 }
 
 int main(int argc, char **argv) {
@@ -224,11 +276,12 @@ int main(int argc, char **argv) {
   glutInitDisplayMode(GLUT_DEPTH);
   glEnable(GL_DEPTH_TEST);
 
+  initFloorTexture();
   glutDisplayFunc(displayFunc);
   glutIdleFunc(idleFunc);
   glutKeyboardFunc(keyboardFunc);
   glutKeyboardUpFunc(keyboardUpFunc);
-  
+
   glutMainLoop();
   return 0;
 }
