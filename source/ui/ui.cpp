@@ -19,39 +19,45 @@ void TextLable::Draw(){
         lable1 = this->updateString(this->state).c_str();
     }
 
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+
     int pos = 0;
     glColor3f(this->color[0], this->color[1], this->color[2]);
-    glRasterPos2d(this->posX, this->posY);
+    glTranslated(this->posX, this->posY, 0);
+    double scaleFactor = RENDER_WIDTH / (glutStrokeWidthf(GLUT_STROKE_ROMAN, 'a') * 150);
+    glScaled(scaleFactor, scaleFactor, scaleFactor);
     while(lable1[pos]){//nullterminated string
-        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, lable1[pos++]);
+        glutStrokeCharacter(GLUT_STROKE_ROMAN, lable1[pos++]);
     }
+    glPopMatrix();
 }
 
 UIManager::UIManager(State *state){
     this->state = state;
 
     
-    TextLable *controlModeLable = new TextLable(state, 10, 970, "", 1, 1, 1);
+    TextLable *controlModeLable = new TextLable(state, 10, 1050, "", 1, 1, 1);
     controlModeLable->updateString = [](State* state) -> string {if(!state->displayDebugInfo){return "";} return "Control Mode = " + string((state->controlMode == Robot ? "Robot" : "Camera"));};
     this->AddUIElement(controlModeLable);
 
-    TextLable *MovingForwardLable = new TextLable(state, 10, 940, "", 1, 1, 1);
+    TextLable *MovingForwardLable = new TextLable(state, 10, 1020, "", 1, 1, 1);
     MovingForwardLable->updateString = [](State* state) -> string {if(!state->displayDebugInfo){return "";} return "isMovingForward = " + string((state->isMovingForward) ? "True" : "False");};
     this->AddUIElement(MovingForwardLable);
 
-    TextLable *RotatingLeftLable = new TextLable(state, 10, 910, "", 1, 1, 1);
+    TextLable *RotatingLeftLable = new TextLable(state, 10, 990, "", 1, 1, 1);
     RotatingLeftLable->updateString = [](State* state) -> string {if(!state->displayDebugInfo){return "";} return "isRotatingLeft = " + string((state->isRotatingLeft) ? "True" : "False");};
     this->AddUIElement(RotatingLeftLable);
 
-    TextLable *RotatingRightLable = new TextLable(state, 10, 880, "", 1, 1, 1);
+    TextLable *RotatingRightLable = new TextLable(state, 10, 960, "", 1, 1, 1);
     RotatingRightLable->updateString = [](State* state) -> string {if(!state->displayDebugInfo){return "";} return "isRotatingRight = " + string((state->isRotatingRight) ? "True" : "False");};
     this->AddUIElement(RotatingRightLable);
 
-    TextLable *RobotPositionLable = new TextLable(state, 10, 850, "", 1, 1, 1);
+    TextLable *RobotPositionLable = new TextLable(state, 10, 930, "", 1, 1, 1);
     RobotPositionLable->updateString = [](State* state) -> string {if(!state->displayDebugInfo){return "";} return "RobotPosition = x=" + std::to_string(state->robot.position.x) + " y=" + std::to_string(state->robot.position.y) + " z=" + std::to_string(state->robot.position.z);};
     this->AddUIElement(RobotPositionLable);
 
-    TextLable *CameraPositionLable = new TextLable(state, 10, 820, "", 1, 1, 1);
+    TextLable *CameraPositionLable = new TextLable(state, 10, 900, "", 1, 1, 1);
     CameraPositionLable->updateString = [](State* state) -> string {if(!state->displayDebugInfo){return "";} return "CameraPosition = x=" + std::to_string(state->camera.position.x) + " y=" + std::to_string(state->camera.position.y) + " z=" + std::to_string(state->camera.position.z);};
     this->AddUIElement(CameraPositionLable);
 

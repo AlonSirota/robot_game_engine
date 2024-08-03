@@ -6,6 +6,11 @@
 #define ROBOT_ROTATION_SPEED 1
 #define CAMERA_ROTATION_SPEED 1
 
+//Render resolution of 1920x1080 (standard Full HD)
+#define RENDER_WIDTH 1920
+#define RENDER_HIGHT 1080
+#define RENDER_ASPECT_RATIO ((float)RENDER_WIDTH / (float)RENDER_HIGHT)
+
 enum ControlMode { Robot, Camera };
 
 struct Transform {
@@ -26,6 +31,9 @@ struct State {
   bool isMovingBackward;
   Transform robot;
   Transform camera;
+  int windowHeight;
+  int windowWidth;
+
 
   bool displayDebugInfo;
 
@@ -69,5 +77,8 @@ inline void updatedState(State &currentState, double deltaTime) {
          currentState.isRotatingRight, deltaTime, CAMERA_ROTATION_SPEED);
     break;
   }
+  
+  currentState.windowHeight = glutGet(GLUT_WINDOW_HEIGHT);
+  currentState.windowWidth = glutGet(GLUT_WINDOW_WIDTH);
 }
 #endif

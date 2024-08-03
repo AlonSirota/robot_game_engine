@@ -9,6 +9,7 @@
 #define TARGET_FRAME_RATE 60
 #define TARGET_DELTA_BETWEEN_FRAMES_MS (1000.0 / TARGET_FRAME_RATE);
 
+void setupViewport();
 void clearMatrices();
 void pushMatrices();
 void popMatrices();
@@ -49,7 +50,7 @@ void drawAxis() {
 void setupProjection() {
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluPerspective(45, 1, 1, 100);
+  gluPerspective(45, RENDER_ASPECT_RATIO, 1, 100);
 }
 
 void gluLookAt(Point camera, Point target, Point up) {
@@ -68,7 +69,7 @@ void setupCamera(Transform camera) {
 void displayFunc() {
   double frameStartTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0;
 
-  glClear(GL_COLOR_BUFFER_BIT);
+  setupViewport();
   clearMatrices();
   setupCamera(state.camera);
   setupProjection();
@@ -87,6 +88,21 @@ void displayFunc() {
   }
 
   glutTimerFunc(timeToNextFrame, PostRedisplayWrapper, 0);
+}
+
+void setupViewport(){
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glClearColor(0.0f,0.0f,0.0f,1.0f);
+
+  if(state.windowHeight * RENDER_ASPECT_RATIO < state.windowWidth){
+    int w = state.windowHeight * (RENDER_ASPECT_RATIO);           // w is width adjusted for aspect ratio
+    int left = (state.windowWidth - w) / 2;
+    glViewport(left, 0, w, state.windowHeight);       // fix up the viewport to maintain aspect ratio
+  }else{
+    int h = state.windowWidth * (1.0 / RENDER_ASPECT_RATIO);           // w is width adjusted for aspect ratio
+    int bottom = (state.windowHeight - h) / 2;
+    glViewport(0, bottom, state.windowWidth, h);       // fix up the viewport to maintain aspect ratio
+  }
 }
 
 void clearMatrices() {
@@ -140,7 +156,7 @@ void displayUI(){
   clearMatrices();
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluOrtho2D(0,1000,0,1000);
+  gluOrtho2D(0, RENDER_WIDTH, 0, RENDER_HIGHT);
 
   uiManager.Draw();
 
@@ -202,7 +218,7 @@ void PostRedisplayWrapper(int){
 
 int main(int argc, char **argv) {
   glutInit(&argc, argv);
-  glutInitWindowSize(1000, 1000);
+  glutInitWindowSize(RENDER_WIDTH, RENDER_HIGHT);
   glutCreateWindow("Final project.");
 
   glutDisplayFunc(displayFunc);
