@@ -1,10 +1,9 @@
-#include <GL/freeglut_std.h>
-#include <GL/glu.h>
-#include <GL/glut.h>
 #include "Quaternion.h"
 #include "State.h"
 #include "ui/ui.hpp"
-
+#include <GL/freeglut_std.h>
+#include <GL/glu.h>
+#include <GL/glut.h>
 
 #define TARGET_FRAME_RATE 60
 #define TARGET_DELTA_BETWEEN_FRAMES_MS (1000.0 / TARGET_FRAME_RATE);
@@ -83,8 +82,8 @@ void displayFunc() {
   double delta = frameEndTime - frameStartTime;
   double timeToNextFrame = TARGET_DELTA_BETWEEN_FRAMES_MS - delta;
 
-  if(timeToNextFrame <= 0){
-    timeToNextFrame = 0;//TODO: mark frame skipped, add to log
+  if (timeToNextFrame <= 0) {
+    timeToNextFrame = 0; // TODO: mark frame skipped, add to log
   }
 
   glutTimerFunc(timeToNextFrame, PostRedisplayWrapper, 0);
@@ -112,14 +111,14 @@ void clearMatrices() {
   glLoadIdentity();
 }
 
-void pushMatrices(){
+void pushMatrices() {
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
   glMatrixMode(GL_PROJECTION);
   glPushMatrix();
 }
 
-void popMatrices(){
+void popMatrices() {
   glMatrixMode(GL_MODELVIEW);
   glPopMatrix();
   glMatrixMode(GL_PROJECTION);
@@ -151,7 +150,7 @@ void displayRobot(Transform robotTransform) {
   glPopMatrix();
 }
 
-void displayUI(){
+void displayUI() {
   pushMatrices();
   clearMatrices();
   glMatrixMode(GL_PROJECTION);
@@ -212,8 +211,8 @@ void idleFunc() {
   presentedTime = currentTime;
 }
 
-void PostRedisplayWrapper(int){
-  glutPostRedisplay();
+void PostRedisplayWrapper(int) { glutPostRedisplay(); }
+
 }
 
 int main(int argc, char **argv) {
