@@ -95,18 +95,23 @@ void displayFunc() {
   glutTimerFunc(timeToNextFrame, PostRedisplayWrapper, 0);
 }
 
-void setupViewport(){
+void setupViewport() {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  glClearColor(0.0f,0.0f,0.0f,1.0f);
+  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-  if(state.windowHeight * RENDER_ASPECT_RATIO < state.windowWidth){
-    int w = state.windowHeight * (RENDER_ASPECT_RATIO);           // w is width adjusted for aspect ratio
+  if (state.windowHeight * RENDER_ASPECT_RATIO < state.windowWidth) {
+    int w = state.windowHeight *
+            (RENDER_ASPECT_RATIO); // w is width adjusted for aspect ratio
     int left = (state.windowWidth - w) / 2;
-    glViewport(left, 0, w, state.windowHeight);       // fix up the viewport to maintain aspect ratio
-  }else{
-    int h = state.windowWidth * (1.0 / RENDER_ASPECT_RATIO);           // w is width adjusted for aspect ratio
+    glViewport(
+        left, 0, w,
+        state.windowHeight); // fix up the viewport to maintain aspect ratio
+  } else {
+    int h = state.windowWidth *
+            (1.0 / RENDER_ASPECT_RATIO); // w is width adjusted for aspect ratio
     int bottom = (state.windowHeight - h) / 2;
-    glViewport(0, bottom, state.windowWidth, h);       // fix up the viewport to maintain aspect ratio
+    glViewport(0, bottom, state.windowWidth,
+               h); // fix up the viewport to maintain aspect ratio
   }
 }
 
