@@ -69,6 +69,8 @@ void displayFunc() {
   double frameStartTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0;
 
   setupViewport();
+  glClearColor(0.5, 0.8, 0.8, 1.0f);
+  glClear(GL_COLOR_BUFFER_BIT);
   clearMatrices();
   setupCamera(state.camera);
   setupProjection();
