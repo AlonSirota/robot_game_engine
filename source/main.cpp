@@ -70,7 +70,7 @@ void displayFunc() {
 
   setupViewport();
   glClearColor(0.5, 0.8, 0.8, 1.0f);
-  glClear(GL_COLOR_BUFFER_BIT);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   clearMatrices();
   setupCamera(state.camera);
   setupProjection();
@@ -221,6 +221,8 @@ int main(int argc, char **argv) {
   glutInit(&argc, argv);
   glutInitWindowSize(RENDER_WIDTH, RENDER_HIGHT);
   glutCreateWindow("Final project.");
+  glutInitDisplayMode(GLUT_DEPTH);
+  glEnable(GL_DEPTH_TEST);
 
   glutDisplayFunc(displayFunc);
   glutIdleFunc(idleFunc);
