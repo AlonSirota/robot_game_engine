@@ -257,10 +257,10 @@ void initFloorTexture() {
   GLubyte checkerboard[CHECKERBOARD_SIZE][CHECKERBOARD_SIZE][3];
   for (int i = 0; i < CHECKERBOARD_SIZE; i++) {
     for (int j = 0; j < CHECKERBOARD_SIZE; j++) {
-      GLubyte color = ((i + j) % 2 == 0) ? 255 : 0;
-      checkerboard[i][j][0] = color; // Red
-      checkerboard[i][j][1] = color; // Green
-      checkerboard[i][j][2] = color; // Blue
+      GLubyte intensity = ((i + j) % 2 == 0) ? 255 : 0;
+      checkerboard[i][j][0] = intensity; // Red
+      checkerboard[i][j][1] = intensity; // Green
+      checkerboard[i][j][2] = intensity; // Blue
     }
   }
 
