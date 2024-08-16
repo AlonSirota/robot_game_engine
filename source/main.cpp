@@ -176,8 +176,62 @@ void displayRobotHead(Quaternion quaternion) {
   // Left eye
   glPushMatrix();
   glTranslatef(-0.2, 0.1, 0.4);
-  glRotatef(90, 1, 0, 0);                  // Rotate to face front
-  gluDisk(gluNewQuadric(), 0, 0.1, 20, 1); // Inner radius 0, outer radius 0.1
+  glRotatef(90, 1, 0, 0);
+  gluDisk(gluNewQuadric(), 0, 0.1, 20, 1);
+  glPopMatrix();
+  glPopMatrix();
+}
+void displayRobotArm(Quaternion armRotation, Quaternion elbowRotation, Quaternion handRotation) {
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
+  GLfloat upperArmLength = 0.4;
+  GLfloat lowerArmLength = 0.3;
+  GLfloat handSize = 0.25;
+  GLfloat fingerLength = 0.1;
+
+  // Upper arm, from shoulder to elbow
+  glTranslatef(0.65, 0.8, 0); // Position the arm on the side of the torso
+  
+  // Shoulder rotation
+  glMultMatrixf(armRotation.toMatrix());
+
+  // Draw upper arm
+  glPushMatrix();
+  glScalef(0.2, upperArmLength, 0.2);
+  glColor3f(0.8, 0.3, 0.3);
+  glutSolidCube(1);
+  glPopMatrix();
+
+  // Move to elbow position
+  glTranslatef(0, -upperArmLength, 0);
+
+  // Elbow rotation
+  // Because `glutSolidCube` draws the cube centered at the origin, in order to
+  // align the cube pivot point with the elbow we translate by half of the
+  // length.
+  glTranslatef(0, upperArmLength / 2, 0); // Align cube center to elbow pivot point.
+  glMultMatrixf(elbowRotation.toMatrix()); // Rotate around the elbow.
+  glTranslatef(0, -upperArmLength / 2, 0); // Translate back.
+
+  // Draw lower arm
+  glPushMatrix();
+  glColor3f(0.2, 0.8, 0.2);
+  glScalef(0.15, lowerArmLength, 0.15);
+  glutSolidCube(1);
+  glPopMatrix();
+
+  // Move to wrist position
+  glTranslatef(0, -lowerArmLength, 0);
+
+  // Hand rotation
+  glTranslatef(0, handSize / 2, 0); // Align cube center to wrist pivot point
+  glMultMatrixf(handRotation.toMatrix()); // Rotate around the wrist
+  glTranslatef(0, -handSize / 2, 0); // Translate back
+
+  // Draw hand
+  glPushMatrix();
+  glColor3f(0.9, 0.7, 0.5); // Skin color for the hand
+  glutSolidCube(handSize);
   glPopMatrix();
 
   glPopMatrix();
@@ -188,11 +242,13 @@ void displayRobot(struct Robot robot) {
   glPushMatrix();
   glTranslatePoint(robot.transform.position);
   glMultMatrixf(robot.transform.quaternion.toMatrix());
+
   displayRobotTorso();
   displayRobotHead(robot.headRotation);
+  displayRobotArm(robot.armRotation, robot.elbowRotation, robot.handRotation);
+
   glPopMatrix();
 }
-
 void displayUI() {
   pushMatrices();
   clearMatrices();
@@ -235,8 +291,23 @@ void renderFloor() {
 
 void keyboardFunc(unsigned char key, int x, int y) {
   switch (key) {
-  case ' ': // Space key
-    state.controlMode = (state.controlMode == Robot) ? Camera : Robot;
+  case '1':
+    state.controlMode = Camera;
+    break;
+  case '2':
+    state.controlMode = Robot;
+    break;
+  case '3':
+    state.controlMode = RobotHead;
+    break;
+  case '4':
+    state.controlMode = UpperArm;
+    break;
+  case '5':
+    state.controlMode = LowerArm;
+    break;
+  case '6':
+    state.controlMode = Hand;
     break;
   case 'w':
     state.controlCommands.isMovingForward = true;

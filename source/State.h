@@ -11,7 +11,7 @@
 #define RENDER_HIGHT 1080
 #define RENDER_ASPECT_RATIO ((float)RENDER_WIDTH / (float)RENDER_HIGHT)
 
-enum ControlMode { Robot, RobotHead, Camera };
+enum ControlMode { Robot, RobotHead, UpperArm, LowerArm, Hand, Camera };
 
 struct Transform {
   Point position;
@@ -26,11 +26,24 @@ struct Transform {
 };
 
 struct Robot {
-  Robot(Transform transform, Quaternion headRotation)
-      : transform(transform), headRotation(headRotation) {}
+  Robot(Transform transform, Quaternion headRotation, Quaternion armRotation,
+        Quaternion elbowRotation, Quaternion handRotation)
+      : transform(transform), headRotation(headRotation),
+        armRotation(armRotation), elbowRotation(elbowRotation),
+        handRotation(handRotation) {}
   Transform transform;
+
   // This rotation is relative to the torso.
   Quaternion headRotation;
+
+  // Relative to the left shoulder pivot point.
+  Quaternion armRotation;
+
+  // Relative to the elbow pivot point.
+  Quaternion elbowRotation;
+
+  // Relative to the hand pivot point.
+  Quaternion handRotation;
 };
 
 struct ControlCommands {
@@ -63,7 +76,8 @@ struct State {
 
   State()
       : controlMode(Robot), controlCommands(),
-        robot({{0, 0, 0}, {1, 0, 0}}, Quaternion::identity()),
+        robot({{0, 0, 0}, {1, 0, 0}}, Quaternion::identity(), Quaternion::identity(),
+              Quaternion::identity(), Quaternion::identity()),
         camera({{5, 5, 5}, Quaternion(0.88, -0.325, 0.325, 0)}),
         displayDebugInfo(true) {}
 };
@@ -156,6 +170,18 @@ inline void updatedState(State &currentState, double deltaTime) {
     rotateLeftAndRight(currentState.camera.quaternion, currentState.controlCommands,
                        deltaTime, CAMERA_ROTATION_SPEED);
     moveUpAndDown(currentState.camera, currentState.controlCommands, deltaTime);
+    break;
+  case UpperArm:
+    rotateUpAndDown(currentState.robot.armRotation, currentState.controlCommands, 
+                    deltaTime, CAMERA_ROTATION_SPEED);
+    break;
+  case LowerArm:
+    rotateUpAndDown(currentState.robot.elbowRotation, currentState.controlCommands, 
+                    deltaTime, CAMERA_ROTATION_SPEED);
+    break;
+  case Hand:
+    rotateLeftAndRight(currentState.robot.handRotation, currentState.controlCommands,
+                       deltaTime, CAMERA_ROTATION_SPEED);
     break;
   }
   currentState.windowHeight = glutGet(GLUT_WINDOW_HEIGHT);
