@@ -13,6 +13,8 @@ struct Quaternion {
   Quaternion(double w = 1.0, double x = 0.0, double y = 0.0, double z = 0.0)
       : w(w), x(x), y(y), z(z) {}
 
+  static Quaternion identity() { return Quaternion(1, 0, 0, 0); }
+
   Quaternion(double angle, Point axis) {
     w = std::cos(angle / 2);
     x = axis.x * std::sin(angle / 2);

@@ -17,7 +17,7 @@ void pushMatrices();
 void popMatrices();
 void setupCamera(Transform camera);
 void displayFunc();
-void displayRobot(Transform transform);
+void displayRobot(struct Robot robot);
 void drawAxis();
 void keyboardFunc(unsigned char key, int x, int y);
 void keyboardUpFunc(unsigned char key, int x, int y);
@@ -161,12 +161,13 @@ void displayRobotTorso() {
   glPopMatrix();
 }
 
-void displayRobotHead() {
+void displayRobotHead(Quaternion quaternion) {
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
 
   // Move the head above the torso
   glTranslatef(0, 1.5, 0);
+  glMultMatrixf(quaternion.toMatrix());
 
   // Draw the head (grey sphere)
   glColor3f(0.7, 0.7, 0.7); // Grey color
@@ -194,14 +195,14 @@ void displayRobotHead() {
   glPopMatrix();
 }
 
-void displayRobot(Transform robotTransform) {
-  displayMovingDirection(robotTransform);
+void displayRobot(struct Robot robot) {
+  displayMovingDirection(robot.transform);
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
-  glTranslatePoint(robotTransform.position);
-  glMultMatrixf(robotTransform.quaternion.toMatrix());
+  glTranslatePoint(robot.transform.position);
+  glMultMatrixf(robot.transform.quaternion.toMatrix());
   displayRobotTorso();
-  displayRobotHead();
+  displayRobotHead(robot.headRotation);
   glPopMatrix();
 }
 

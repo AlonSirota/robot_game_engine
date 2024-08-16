@@ -23,13 +23,21 @@ struct Transform {
   Point direction() { return quaternion.rotatePoint({0, 0, 1}); }
 };
 
+struct Robot {
+  Robot(Transform transform, Quaternion headRotation)
+      : transform(transform), headRotation(headRotation) {}
+  Transform transform;
+  // This rotation is relative to the torso.
+  Quaternion headRotation;
+};
+
 struct State {
   ControlMode controlMode;
   bool isMovingForward;
   bool isRotatingLeft;
   bool isRotatingRight;
   bool isMovingBackward;
-  Transform robot;
+  struct Robot robot;
   Transform camera;
   int windowHeight;
   int windowWidth;
@@ -39,7 +47,7 @@ struct State {
 
   State()
       : controlMode(Robot), isMovingForward(false), isRotatingLeft(false),
-        isRotatingRight(false), robot({{0, 0, 0}, {1, 0, 0}}),
+        isRotatingRight(false), robot({{0, 0, 0}, {1, 0, 0}}, Quaternion::identity()),
         camera({{5, 5, 5}, Quaternion(0.88, -0.325, 0.325, 0)}),
         displayDebugInfo(true) {}
 };
@@ -67,7 +75,7 @@ inline void move(Transform &t, bool isMovingForward, bool isMovingBackward,
 inline void updatedState(State &currentState, double deltaTime) {
   switch (currentState.controlMode) {
   case Robot:
-    move(currentState.robot, currentState.isMovingForward,
+    move(currentState.robot.transform, currentState.isMovingForward,
          currentState.isMovingBackward, currentState.isRotatingLeft,
          currentState.isRotatingRight, deltaTime, ROBOT_ROTATION_SPEED);
     break;

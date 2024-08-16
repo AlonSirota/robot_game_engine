@@ -54,7 +54,7 @@ UIManager::UIManager(State *state){
     this->AddUIElement(RotatingRightLable);
 
     TextLable *RobotPositionLable = new TextLable(state, 10, 930, "", 1, 1, 1);
-    RobotPositionLable->updateString = [](State* state) -> string {if(!state->displayDebugInfo){return "";} return "RobotPosition = x=" + std::to_string(state->robot.position.x) + " y=" + std::to_string(state->robot.position.y) + " z=" + std::to_string(state->robot.position.z);};
+    RobotPositionLable->updateString = [](State* state) -> string {if(!state->displayDebugInfo){return "";} return "RobotPosition = x=" + std::to_string(state->robot.transform.position.x) + " y=" + std::to_string(state->robot.transform.position.y) + " z=" + std::to_string(state->robot.transform.position.z);};
     this->AddUIElement(RobotPositionLable);
 
     TextLable *CameraPositionLable = new TextLable(state, 10, 900, "", 1, 1, 1);
