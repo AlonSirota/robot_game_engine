@@ -264,14 +264,10 @@ void keyboardFunc(unsigned char key, int x, int y) {
     state.controlCommands.isMovingRight = true;
     break;
   case 'q':
-    if (state.controlMode == Camera) {
-      state.controlCommands.isMovingUp = true;
-    }
+    state.controlCommands.isMovingUp = true;
     break;
   case 'e':
-    if (state.controlMode == Camera) {
-      state.controlCommands.isMovingDown = true;
-    }
+    state.controlCommands.isMovingDown = true;
     break;
   }
 }
@@ -291,14 +287,10 @@ void keyboardUpFunc(unsigned char key, int x, int y) {
     state.controlCommands.isMovingRight = false;
     break;
   case 'q':
-    if (state.controlMode == Camera) {
-      state.controlCommands.isMovingUp = false;
-    }
+    state.controlCommands.isMovingUp = false;
     break;
   case 'e':
-    if (state.controlMode == Camera) {
-      state.controlCommands.isMovingDown = false;
-    }
+    state.controlCommands.isMovingDown = false;
     break;
   }
 }
