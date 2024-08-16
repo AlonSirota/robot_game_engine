@@ -140,6 +140,7 @@ void glVertexPoint(Point p) { glVertex3f(p.x, p.y, p.z); }
 
 void glTranslatePoint(Point p) { glTranslatef(p.x, p.y, p.z); }
 
+// This is just for debugging.
 void displayMovingDirection(Transform t) {
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
@@ -151,13 +152,56 @@ void displayMovingDirection(Transform t) {
   glPopMatrix();
 }
 
+void displayRobotTorso() {
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
+  glColor3f(0.5, 0.5, 0.5);
+  glScalef(1, 2, 0.5);
+  glutSolidCube(1);
+  glPopMatrix();
+}
+
+void displayRobotHead() {
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
+
+  // Move the head above the torso
+  glTranslatef(0, 1.5, 0);
+
+  // Draw the head (grey sphere)
+  glColor3f(0.7, 0.7, 0.7); // Grey color
+  glutSolidSphere(
+      0.5, 10,
+      10); // Radius 0.5, 10 slices and stacks for a smooth enough shape.
+
+  // Now I'll draw the eyes.
+  glColor3f(1.0, 0, 0); // Red color
+
+  // Right eye
+  glPushMatrix();
+  glTranslatef(0.2, 0.1, 0.4);
+  glRotatef(90, 1, 0, 0);                  // Rotate to face front
+  gluDisk(gluNewQuadric(), 0, 0.1, 20, 1); // Inner radius 0, outer radius 0.1
+  glPopMatrix();
+
+  // Left eye
+  glPushMatrix();
+  glTranslatef(-0.2, 0.1, 0.4);
+  glRotatef(90, 1, 0, 0);                  // Rotate to face front
+  gluDisk(gluNewQuadric(), 0, 0.1, 20, 1); // Inner radius 0, outer radius 0.1
+  glPopMatrix();
+
+  glPopMatrix();
+}
+
 void displayRobot(Transform robotTransform) {
   displayMovingDirection(robotTransform);
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
   glTranslatePoint(robotTransform.position);
   glMultMatrixf(robotTransform.quaternion.toMatrix());
-  glutSolidTetrahedron();
+  displayRobotTorso();
+  displayRobotHead();
   glPopMatrix();
 }
 
@@ -276,10 +320,11 @@ void initFloorTexture() {
 
 int main(int argc, char **argv) {
   glutInit(&argc, argv);
-  glutInitWindowSize(RENDER_WIDTH, RENDER_HIGHT);
+  glutInitWindowSize(600, 1000);
   glutCreateWindow("Final project.");
   glutInitDisplayMode(GLUT_DEPTH);
   glEnable(GL_DEPTH_TEST);
+  glEnable(GL_MULTISAMPLE);
 
   initFloorTexture();
   glutDisplayFunc(displayFunc);
