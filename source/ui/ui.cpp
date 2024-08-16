@@ -56,7 +56,7 @@ UIManager::UIManager(State *state) {
       return "";
     }
     return "isMovingForward = " +
-           string((state->isMovingForward) ? "True" : "False");
+           string((state->controlCommands.isMovingForward) ? "True" : "False");
   };
   this->AddUIElement(MovingForwardLable);
 
@@ -66,7 +66,7 @@ UIManager::UIManager(State *state) {
       return "";
     }
     return "isRotatingLeft = " +
-           string((state->isRotatingLeft) ? "True" : "False");
+           string((state->controlCommands.isRotatingLeft) ? "True" : "False");
   };
   this->AddUIElement(RotatingLeftLable);
 
@@ -76,7 +76,7 @@ UIManager::UIManager(State *state) {
       return "";
     }
     return "isRotatingRight = " +
-           string((state->isRotatingRight) ? "True" : "False");
+           string((state->controlCommands.isRotatingRight) ? "True" : "False");
   };
   this->AddUIElement(RotatingRightLable);
 

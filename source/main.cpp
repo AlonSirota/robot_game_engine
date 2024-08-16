@@ -247,42 +247,93 @@ void renderFloor() {
 }
 
 void keyboardFunc(unsigned char key, int x, int y) {
-  if (key == 'w') {
-    state.isMovingForward = true;
-  }
-
-  if (key == 'a') {
-    state.isRotatingLeft = true;
-  }
-
-  if (key == 'd') {
-    state.isRotatingRight = true;
-  }
-
-  if (key == 's') {
-    state.isMovingBackward = true;
-  }
-
-  if (key == ' ') {
-    state.controlMode = state.controlMode == Robot ? Camera : Robot;
+  switch (key) {
+  case ' ': // Space key
+    state.controlMode = (state.controlMode == Robot) ? Camera : Robot;
+    break;
+  case 'w':
+    state.controlCommands.isMovingForward = true;
+    break;
+  case 'a':
+    state.controlCommands.isMovingLeft = true;
+    break;
+  case 's':
+    state.controlCommands.isMovingBackward = true;
+    break;
+  case 'd':
+    state.controlCommands.isMovingRight = true;
+    break;
+  case 'q':
+    if (state.controlMode == Camera) {
+      state.controlCommands.isMovingUp = true;
+    }
+    break;
+  case 'e':
+    if (state.controlMode == Camera) {
+      state.controlCommands.isMovingDown = true;
+    }
+    break;
   }
 }
 
 void keyboardUpFunc(unsigned char key, int x, int y) {
-  if (key == 'w') {
-    state.isMovingForward = false;
+  switch (key) {
+  case 'w':
+    state.controlCommands.isMovingForward = false;
+    break;
+  case 'a':
+    state.controlCommands.isMovingLeft = false;
+    break;
+  case 's':
+    state.controlCommands.isMovingBackward = false;
+    break;
+  case 'd':
+    state.controlCommands.isMovingRight = false;
+    break;
+  case 'q':
+    if (state.controlMode == Camera) {
+      state.controlCommands.isMovingUp = false;
+    }
+    break;
+  case 'e':
+    if (state.controlMode == Camera) {
+      state.controlCommands.isMovingDown = false;
+    }
+    break;
   }
+}
 
-  if (key == 'a') {
-    state.isRotatingLeft = false;
+void specialKeyboardKeysFunc(int key, int x, int y) {
+  switch (key) {
+  case GLUT_KEY_UP:
+    state.controlCommands.isRotatingUp = true;
+    break;
+  case GLUT_KEY_DOWN:
+    state.controlCommands.isRotatingDown = true;
+    break;
+  case GLUT_KEY_LEFT:
+    state.controlCommands.isRotatingLeft = true;
+    break;
+  case GLUT_KEY_RIGHT:
+    state.controlCommands.isRotatingRight = true;
+    break;
   }
+}
 
-  if (key == 'd') {
-    state.isRotatingRight = false;
-  }
-
-  if (key == 's') {
-    state.isMovingBackward = false;
+void specialKeyboardKeysUpFunc(int key, int x, int y) {
+  switch (key) {
+  case GLUT_KEY_UP:
+    state.controlCommands.isRotatingUp = false;
+    break;
+  case GLUT_KEY_DOWN:
+    state.controlCommands.isRotatingDown = false;
+    break;
+  case GLUT_KEY_LEFT:
+    state.controlCommands.isRotatingLeft = false;
+    break;
+  case GLUT_KEY_RIGHT:
+    state.controlCommands.isRotatingRight = false;
+    break;
   }
 }
 
@@ -332,6 +383,8 @@ int main(int argc, char **argv) {
   glutIdleFunc(idleFunc);
   glutKeyboardFunc(keyboardFunc);
   glutKeyboardUpFunc(keyboardUpFunc);
+  glutSpecialFunc(specialKeyboardKeysFunc);
+  glutSpecialUpFunc(specialKeyboardKeysUpFunc);
 
   glutMainLoop();
   return 0;
