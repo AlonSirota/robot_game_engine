@@ -140,18 +140,6 @@ void glVertexPoint(Point p) { glVertex3f(p.x, p.y, p.z); }
 
 void glTranslatePoint(Point p) { glTranslatef(p.x, p.y, p.z); }
 
-// This is just for debugging.
-void displayMovingDirection(Transform t) {
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
-  glBegin(GL_LINES);
-  glColor3f(1, 0, 0);
-  glVertexPoint(t.position);
-  glVertexPoint(t.position + t.direction() * 2);
-  glEnd();
-  glPopMatrix();
-}
-
 void displayRobotTorso() {
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
@@ -196,7 +184,6 @@ void displayRobotHead(Quaternion quaternion) {
 }
 
 void displayRobot(struct Robot robot) {
-  displayMovingDirection(robot.transform);
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
   glTranslatePoint(robot.transform.position);
