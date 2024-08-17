@@ -12,6 +12,7 @@
 #define RENDER_ASPECT_RATIO ((float)RENDER_WIDTH / (float)RENDER_HIGHT)
 
 enum ControlMode { Robot, RobotHead, UpperArm, LowerArm, Hand, Camera };
+enum PointOfView { FirstPerson, ThirdPerson };
 
 struct Transform {
   Point position;
@@ -20,6 +21,7 @@ struct Transform {
   Transform(Point position, Quaternion quaternion)
       : position(position), quaternion(quaternion) {}
 
+  // The forward direction.
   Point direction() { return quaternion.rotatePoint({0, 0, 1}); }
   Point right() { return quaternion.rotatePoint({1, 0, 0}); }
   Point up() { return quaternion.rotatePoint({0, 1, 0}); }
@@ -65,6 +67,7 @@ struct ControlCommands {
 };
 
 struct State {
+  PointOfView pointOfView;
   ControlMode controlMode;
   ControlCommands controlCommands;
   struct Robot robot;
@@ -75,7 +78,7 @@ struct State {
   bool displayDebugInfo;
 
   State()
-      : controlMode(Robot), controlCommands(),
+      : pointOfView(ThirdPerson), controlMode(Robot), controlCommands(),
         robot({{0, 0, 0}, {1, 0, 0}}, Quaternion::identity(),
               Quaternion::identity(), Quaternion::identity(),
               Quaternion::identity()),
