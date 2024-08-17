@@ -12,6 +12,7 @@
 #define TARGET_FRAME_RATE 60
 #define TARGET_DELTA_BETWEEN_FRAMES_MS (1000.0 / TARGET_FRAME_RATE);
 #define CHECKERBOARD_SIZE 4
+#define ROBOT_HEAD_HEIGHT 1.0
 
 GLuint floorTextureId;
 void renderFloor();
@@ -19,7 +20,7 @@ void setupViewport();
 void clearMatrices();
 void pushMatrices();
 void popMatrices();
-void setupCamera(Transform camera);
+void setupCamera(Transform camera, struct Robot robot, PointOfView pov);
 void displayFunc();
 void displayRobot(struct Robot robot);
 void drawAxis();
@@ -65,12 +66,40 @@ void gluLookAt(Point camera, Point target, Point up) {
             up.y, up.z);
 }
 
-void setupCamera(Transform camera) {
+void setupCamera(Transform camera, struct Robot robot, PointOfView pov) {
   glMatrixMode(GL_MODELVIEW);
-  Point direction = camera.quaternion.rotatePoint({0, 0, -1});
-  Point target = camera.position + direction;
-  Point up = camera.quaternion.rotatePoint({0, 1, 0});
-  gluLookAt(camera.position, target, up);
+
+  // (0,0,0 are placeholder values, they are initialized in the switch below.
+  Point up = Point(0, 0, 0);
+  Point pointOfViewPosition = Point(0, 0, 0);
+  Point direction = Point(0, 0, 0);
+  Point target = Point(0, 0, 0);
+
+  switch (pov) {
+  case FirstPerson:
+    // We need to put the point of view position above the robot, otherwise the
+    // head will cover the screen.
+    pointOfViewPosition =
+        robot.transform.position + Point(0, ROBOT_HEAD_HEIGHT, 0);
+    // We multiply the robot.transform.quaternion by the head rotation to get
+    // the absolute orientation of the head, which is the direction of the
+    // camera.
+    direction =
+        (robot.headRotationRelativeToTransform * robot.transform.quaternion)
+            .getForwardVector();
+    up = Point(0, 1, 0);
+    break;
+  case ThirdPerson:
+    pointOfViewPosition = camera.position;
+    // We multiply the direction by -1 because the camera looks in the
+    // direaction of the camera's negative z-axis.
+    direction = camera.quaternion.getForwardVector() * -1;
+    up = camera.quaternion.getUpVector();
+    break;
+  }
+
+  target = pointOfViewPosition + direction;
+  gluLookAt(pointOfViewPosition, target, up);
 }
 
 void displayFunc() {
@@ -80,7 +109,7 @@ void displayFunc() {
   glClearColor(0.5, 0.8, 0.8, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   clearMatrices();
-  setupCamera(state.camera);
+  setupCamera(state.camera, state.robot, state.pointOfView);
   setupProjection();
   drawAxis();
   displayRobot(state.robot);
@@ -163,6 +192,7 @@ void displayRobotTorso() {
 }
 
 void displayRobotHead(Quaternion quaternion) {
+  GLfloat headRadius = ROBOT_HEAD_HEIGHT / 2;
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
 
@@ -173,7 +203,7 @@ void displayRobotHead(Quaternion quaternion) {
   // Draw the head (grey sphere)
   glColor3f(0.7, 0.7, 0.7); // Grey color
   glutSolidSphere(
-      0.5, 10,
+      headRadius, 10,
       10); // Radius 0.5, 10 slices and stacks for a smooth enough shape.
 
   // Now I'll draw the eyes.
@@ -281,7 +311,7 @@ void displayRobot(struct Robot robot) {
   glMultMatrixf(robot.transform.quaternion.toMatrix());
 
   displayRobotTorso();
-  displayRobotHead(robot.headRotation);
+  displayRobotHead(robot.headRotationRelativeToTransform);
   displayRobotArm(robot.armRotation, robot.elbowRotation, robot.handRotation);
 
   glPopMatrix();
@@ -355,6 +385,11 @@ void keyboardFunc(unsigned char key, int x, int y) {
     break;
   case '6':
     state.controlMode = Hand;
+    break;
+  case ' ':
+    // toggle between first person and third person.
+    state.pointOfView =
+        state.pointOfView == FirstPerson ? ThirdPerson : FirstPerson;
     break;
   case 'w':
     state.controlCommands.isMovingForward = true;
