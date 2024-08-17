@@ -78,13 +78,20 @@ void setupCamera(Transform camera, struct Robot robot, PointOfView pov) {
   case FirstPerson:
     // We need to put the point of view position above the robot, otherwise the
     // head will cover the screen.
-    pointOfViewPosition = robot.transform.position + Point(0, ROBOT_HEAD_HEIGHT, 0);
-    direction = robot.transform.quaternion.getForwardVector();
+    pointOfViewPosition =
+        robot.transform.position + Point(0, ROBOT_HEAD_HEIGHT, 0);
+    // We multiply the robot.transform.quaternion by the head rotation to get
+    // the absolute orientation of the head, which is the direction of the
+    // camera.
+    direction =
+        (robot.headRotationRelativeToTransform * robot.transform.quaternion)
+            .getForwardVector();
     up = Point(0, 1, 0);
     break;
   case ThirdPerson:
     pointOfViewPosition = camera.position;
-    // We multiply the direction by -1 because the camera looks in the direaction of the camera's negative z-axis.
+    // We multiply the direction by -1 because the camera looks in the
+    // direaction of the camera's negative z-axis.
     direction = camera.quaternion.getForwardVector() * -1;
     up = camera.quaternion.getUpVector();
     break;
@@ -295,7 +302,7 @@ void displayRobot(struct Robot robot) {
   glMultMatrixf(robot.transform.quaternion.toMatrix());
 
   displayRobotTorso();
-  displayRobotHead(robot.headRotation);
+  displayRobotHead(robot.headRotationRelativeToTransform);
   displayRobotArm(robot.armRotation, robot.elbowRotation, robot.handRotation);
 
   glPopMatrix();

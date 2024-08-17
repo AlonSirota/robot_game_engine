@@ -25,13 +25,13 @@ struct Transform {
 struct Robot {
   Robot(Transform transform, Quaternion headRotation, Quaternion armRotation,
         Quaternion elbowRotation, Quaternion handRotation)
-      : transform(transform), headRotation(headRotation),
+      : transform(transform), headRotationRelativeToTransform(headRotation),
         armRotation(armRotation), elbowRotation(elbowRotation),
         handRotation(handRotation) {}
   Transform transform;
 
   // This rotation is relative to the torso.
-  Quaternion headRotation;
+  Quaternion headRotationRelativeToTransform;
 
   // Relative to the left shoulder pivot point.
   Quaternion armRotation;
@@ -153,7 +153,7 @@ inline void updatedState(State &currentState, double deltaTime) {
                        ROBOT_ROTATION_SPEED);
     break;
   case RobotHead:
-    rotateLeftAndRight(currentState.robot.headRotation,
+    rotateLeftAndRight(currentState.robot.headRotationRelativeToTransform,
                        currentState.controlCommands, deltaTime,
                        ROBOT_ROTATION_SPEED);
     break;
