@@ -181,7 +181,39 @@ void displayRobotHead(Quaternion quaternion) {
   glPopMatrix();
   glPopMatrix();
 }
-void displayRobotArm(Quaternion armRotation, Quaternion elbowRotation, Quaternion handRotation) {
+
+void displayClaw() {
+  GLfloat clawLength = 0.4;
+  GLfloat clawWidth = 0.08;
+  GLfloat clawDepth = 0.1;
+  GLfloat clawOpennessDegrees = 15;
+
+  glColor3f(0.2, 0.2, 1);
+
+  // Left prong.
+  glPushMatrix();
+  glRotatef(-clawOpennessDegrees, 0, 0,
+            1); // Rotate away from the wrist's axis.
+  glTranslatef(0, -clawLength / 2,
+               0); // Translate away from the wrist, because SolidCubes with the
+                   // current pivot point as the center.
+  glScalef(clawWidth, clawLength, clawDepth);
+  glutSolidCube(1.0);
+  glPopMatrix();
+
+  // Right prong.
+  glPushMatrix();
+  glRotatef(clawOpennessDegrees, 0, 0, 1);
+  glTranslatef(0, -clawLength / 2,
+               0); // Translate away from the wrist, because SolidCubes with the
+                   // current pivot point as the center.
+  glScalef(clawWidth, clawLength, clawDepth);
+  glutSolidCube(1.0);
+  glPopMatrix();
+}
+
+void displayRobotArm(Quaternion armRotation, Quaternion elbowRotation,
+                     Quaternion handRotation) {
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
   GLfloat upperArmLength = 0.4;
@@ -191,7 +223,7 @@ void displayRobotArm(Quaternion armRotation, Quaternion elbowRotation, Quaternio
 
   // Upper arm, from shoulder to elbow
   glTranslatef(0.65, 0.8, 0); // Position the arm on the side of the torso
-  
+
   // Shoulder rotation
   glMultMatrixf(armRotation.toMatrix());
 
@@ -209,7 +241,8 @@ void displayRobotArm(Quaternion armRotation, Quaternion elbowRotation, Quaternio
   // Because `glutSolidCube` draws the cube centered at the origin, in order to
   // align the cube pivot point with the elbow we translate by half of the
   // length.
-  glTranslatef(0, upperArmLength / 2, 0); // Align cube center to elbow pivot point.
+  glTranslatef(0, upperArmLength / 2,
+               0); // Align cube center to elbow pivot point.
   glMultMatrixf(elbowRotation.toMatrix()); // Rotate around the elbow.
   glTranslatef(0, -upperArmLength / 2, 0); // Translate back.
 
@@ -221,18 +254,9 @@ void displayRobotArm(Quaternion armRotation, Quaternion elbowRotation, Quaternio
   glPopMatrix();
 
   // Move to wrist position
-  glTranslatef(0, -lowerArmLength, 0);
-
-  // Hand rotation
-  glTranslatef(0, handSize / 2, 0); // Align cube center to wrist pivot point
-  glMultMatrixf(handRotation.toMatrix()); // Rotate around the wrist
-  glTranslatef(0, -handSize / 2, 0); // Translate back
-
-  // Draw hand
-  glPushMatrix();
-  glColor3f(0.9, 0.7, 0.5); // Skin color for the hand
-  glutSolidCube(handSize);
-  glPopMatrix();
+  glTranslatef(0, -lowerArmLength / 2, 0);
+  glMultMatrixf(handRotation.toMatrix());
+  displayClaw();
 
   glPopMatrix();
 }
