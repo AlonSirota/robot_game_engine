@@ -76,16 +76,17 @@ struct State {
 
   State()
       : controlMode(Robot), controlCommands(),
-        robot({{0, 0, 0}, {1, 0, 0}}, Quaternion::identity(), Quaternion::identity(),
-              Quaternion::identity(), Quaternion::identity()),
+        robot({{0, 0, 0}, {1, 0, 0}}, Quaternion::identity(),
+              Quaternion::identity(), Quaternion::identity(),
+              Quaternion::identity()),
         camera({{5, 5, 5}, Quaternion(0.88, -0.325, 0.325, 0)}),
         displayDebugInfo(true) {}
 };
 
 inline void moveForwardAndBackwords(Transform &t,
-                                            ControlCommands controlCommands,
-                                            bool shouldInvertForwardDirection,
-                                            double deltaTime) {
+                                    ControlCommands controlCommands,
+                                    bool shouldInvertForwardDirection,
+                                    double deltaTime) {
   Point forward = t.direction() * (shouldInvertForwardDirection ? -1 : 1);
 
   if (controlCommands.isMovingForward) {
@@ -105,8 +106,7 @@ inline void moveLeftAndRight(Transform &t,
   }
 }
 
-inline void moveUpAndDown(Transform &t,
-                          const ControlCommands &controlCommands,
+inline void moveUpAndDown(Transform &t, const ControlCommands &controlCommands,
                           double deltaTime) {
   if (controlCommands.isMovingUp) {
     t.position += t.up() * ROBOT_SPEED * deltaTime;
@@ -117,8 +117,7 @@ inline void moveUpAndDown(Transform &t,
 
 inline void rotateLeftAndRight(Quaternion &quaternion,
                                const ControlCommands &controlCommands,
-                               double deltaTime,
-                               double rotationSpeed) {
+                               double deltaTime, double rotationSpeed) {
   if (controlCommands.isRotatingLeft) {
     Quaternion rotation(-rotationSpeed * deltaTime, Point(0, -1, 0));
     quaternion = (quaternion * rotation).normalize();
@@ -131,8 +130,7 @@ inline void rotateLeftAndRight(Quaternion &quaternion,
 
 inline void rotateUpAndDown(Quaternion &quaternion,
                             const ControlCommands &controlCommands,
-                            double deltaTime,
-                            double rotationSpeed) {
+                            double deltaTime, double rotationSpeed) {
   if (controlCommands.isRotatingUp) {
     Quaternion rotation(rotationSpeed * deltaTime, Point(1, 0, 0));
     quaternion = (quaternion * rotation).normalize();
@@ -147,41 +145,45 @@ inline void updatedState(State &currentState, double deltaTime) {
   switch (currentState.controlMode) {
   case Robot:
     moveForwardAndBackwords(currentState.robot.transform,
-                           currentState.controlCommands, true,
-                           deltaTime);
+                            currentState.controlCommands, true, deltaTime);
     moveLeftAndRight(currentState.robot.transform, currentState.controlCommands,
                      deltaTime);
-    rotateLeftAndRight(currentState.robot.transform.quaternion, 
-                       currentState.controlCommands,
-                       deltaTime, ROBOT_ROTATION_SPEED);
+    rotateLeftAndRight(currentState.robot.transform.quaternion,
+                       currentState.controlCommands, deltaTime,
+                       ROBOT_ROTATION_SPEED);
     break;
   case RobotHead:
-    rotateLeftAndRight(currentState.robot.headRotation, 
-                       currentState.controlCommands,
-                       deltaTime, ROBOT_ROTATION_SPEED);
+    rotateLeftAndRight(currentState.robot.headRotation,
+                       currentState.controlCommands, deltaTime,
+                       ROBOT_ROTATION_SPEED);
     break;
   case Camera:
-    moveForwardAndBackwords(currentState.camera, currentState.controlCommands, 
-                           false, deltaTime);
+    moveForwardAndBackwords(currentState.camera, currentState.controlCommands,
+                            false, deltaTime);
     moveLeftAndRight(currentState.camera, currentState.controlCommands,
                      deltaTime);
-    rotateUpAndDown(currentState.camera.quaternion, currentState.controlCommands, 
-                    deltaTime, CAMERA_ROTATION_SPEED);
-    rotateLeftAndRight(currentState.camera.quaternion, currentState.controlCommands,
-                       deltaTime, CAMERA_ROTATION_SPEED);
+    rotateUpAndDown(currentState.camera.quaternion,
+                    currentState.controlCommands, deltaTime,
+                    CAMERA_ROTATION_SPEED);
+    rotateLeftAndRight(currentState.camera.quaternion,
+                       currentState.controlCommands, deltaTime,
+                       CAMERA_ROTATION_SPEED);
     moveUpAndDown(currentState.camera, currentState.controlCommands, deltaTime);
     break;
   case UpperArm:
-    rotateUpAndDown(currentState.robot.armRotation, currentState.controlCommands, 
-                    deltaTime, CAMERA_ROTATION_SPEED);
+    rotateUpAndDown(currentState.robot.armRotation,
+                    currentState.controlCommands, deltaTime,
+                    CAMERA_ROTATION_SPEED);
     break;
   case LowerArm:
-    rotateUpAndDown(currentState.robot.elbowRotation, currentState.controlCommands, 
-                    deltaTime, CAMERA_ROTATION_SPEED);
+    rotateUpAndDown(currentState.robot.elbowRotation,
+                    currentState.controlCommands, deltaTime,
+                    CAMERA_ROTATION_SPEED);
     break;
   case Hand:
-    rotateLeftAndRight(currentState.robot.handRotation, currentState.controlCommands,
-                       deltaTime, CAMERA_ROTATION_SPEED);
+    rotateLeftAndRight(currentState.robot.handRotation,
+                       currentState.controlCommands, deltaTime,
+                       CAMERA_ROTATION_SPEED);
     break;
   }
   currentState.windowHeight = glutGet(GLUT_WINDOW_HEIGHT);
