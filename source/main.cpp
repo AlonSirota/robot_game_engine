@@ -5,6 +5,10 @@
 #include <GL/glu.h>
 #include <GL/glut.h>
 
+#ifndef GL_MULTISAMPLE
+#define GL_MULTISAMPLE GLUT_MULTISAMPLE
+#endif
+
 #define TARGET_FRAME_RATE 60
 #define TARGET_DELTA_BETWEEN_FRAMES_MS (1000.0 / TARGET_FRAME_RATE);
 #define CHECKERBOARD_SIZE 4
