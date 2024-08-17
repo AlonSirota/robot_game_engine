@@ -145,7 +145,7 @@ inline void updatedState(State &currentState, double deltaTime) {
   switch (currentState.controlMode) {
   case Robot:
     moveForwardAndBackwords(currentState.robot.transform,
-                            currentState.controlCommands, true, deltaTime);
+                            currentState.controlCommands, false, deltaTime);
     moveLeftAndRight(currentState.robot.transform, currentState.controlCommands,
                      deltaTime);
     rotateLeftAndRight(currentState.robot.transform.quaternion,
@@ -159,7 +159,7 @@ inline void updatedState(State &currentState, double deltaTime) {
     break;
   case Camera:
     moveForwardAndBackwords(currentState.camera, currentState.controlCommands,
-                            false, deltaTime);
+                            true, deltaTime);
     moveLeftAndRight(currentState.camera, currentState.controlCommands,
                      deltaTime);
     rotateUpAndDown(currentState.camera.quaternion,
