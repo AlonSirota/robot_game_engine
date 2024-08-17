@@ -6,11 +6,9 @@
 #include "TextBox.hpp"
 #include "SolidColor.hpp"
 #include "UIMenue.hpp"
-#include "MainMenue.hpp"
-#include "HelpMenue.hpp"
-#include "OptionsMenue.hpp"
-#include "UIManager.hpp"
 
 
-
-
+class OptionsMenue : public UIMenue{
+public:
+    OptionsMenue(State*);
+};

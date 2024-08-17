@@ -25,6 +25,7 @@ void displayRobot(struct Robot robot);
 void drawAxis();
 void keyboardFunc(unsigned char key, int x, int y);
 void keyboardUpFunc(unsigned char key, int x, int y);
+void mouseFunc(int button, int state, int x, int y);
 void idleFunc();
 void PostRedisplayWrapper(int);
 void displayUI();
@@ -110,12 +111,20 @@ void setupViewport() {
     glViewport(
         left, 0, w,
         state.windowHeight); // fix up the viewport to maintain aspect ratio
+    state.viewportInfo.x = left;
+    state.viewportInfo.y = 0;
+    state.viewportInfo.width = w;
+    state.viewportInfo.hight = state.windowHeight;
   } else {
     int h = state.windowWidth *
             (1.0 / RENDER_ASPECT_RATIO); // w is width adjusted for aspect ratio
     int bottom = (state.windowHeight - h) / 2;
     glViewport(0, bottom, state.windowWidth,
                h); // fix up the viewport to maintain aspect ratio
+    state.viewportInfo.x = 0;
+    state.viewportInfo.y = bottom;
+    state.viewportInfo.width = state.windowWidth;
+    state.viewportInfo.hight = h;
   }
 }
 
@@ -318,6 +327,16 @@ void renderFloor() {
 }
 
 void keyboardFunc(unsigned char key, int x, int y) {
+  if(key == 27){
+    if(state.activeMenue == None){
+      state.activeMenue = Main;
+    }else{
+      state.activeMenue = None;
+    }
+  }
+
+  if(state.activeMenue != None){return;}
+
   switch (key) {
   case '1':
     state.controlMode = Camera;
@@ -415,6 +434,33 @@ void specialKeyboardKeysUpFunc(int key, int x, int y) {
   }
 }
 
+void adjustMouseCoordToViewPort(int *mX, int *mY){
+  *mY = state.windowHeight - *mY;
+
+  *mX -= state.viewportInfo.x;
+  *mY -= state.viewportInfo.y;
+
+  *mX *= 1920.0 / state.viewportInfo.width;
+  *mY *= 1080.0 / state.viewportInfo.hight;
+  
+}
+
+void mouseFunc(int button, int mState, int mX, int mY){
+  adjustMouseCoordToViewPort(&mX, &mY);
+
+  //is in viewport
+  if(mX >= 0 &&
+      mX <= 1920 &&
+      mY >= 0 &&
+      mY <= 1080){
+          
+          if(button == GLUT_LEFT_BUTTON && mState == GLUT_DOWN){
+            uiManager.MouseClick(mX, mY);
+          }
+  }
+  
+}
+
 void idleFunc() {
   double currentTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0;
   double deltaTime = currentTime - presentedTime;
@@ -455,12 +501,16 @@ int main(int argc, char **argv) {
   glutInitDisplayMode(GLUT_DEPTH);
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_MULTISAMPLE);
+  glEnable(GL_BLEND); //Enable blending.
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Set blending function.
+
 
   initFloorTexture();
   glutDisplayFunc(displayFunc);
   glutIdleFunc(idleFunc);
   glutKeyboardFunc(keyboardFunc);
   glutKeyboardUpFunc(keyboardUpFunc);
+  glutMouseFunc(mouseFunc);
   glutSpecialFunc(specialKeyboardKeysFunc);
   glutSpecialUpFunc(specialKeyboardKeysUpFunc);
 

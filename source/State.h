@@ -13,6 +13,8 @@
 
 enum ControlMode { Robot, RobotHead, UpperArm, LowerArm, Hand, Camera };
 
+enum ActiveMenue {None, Main, Help, Options};
+
 struct Transform {
   Point position;
   Quaternion quaternion;
@@ -64,6 +66,13 @@ struct ControlCommands {
         isMovingUp(false), isMovingDown(false) {}
 };
 
+struct ViewportInfo{
+  GLint x;
+  GLint y;
+  GLsizei width;
+  GLsizei hight;
+};
+
 struct State {
   ControlMode controlMode;
   ControlCommands controlCommands;
@@ -72,7 +81,13 @@ struct State {
   int windowHeight;
   int windowWidth;
 
+  ViewportInfo viewportInfo;
+
+  bool showingMenu;
+
   bool displayDebugInfo;
+
+  ActiveMenue activeMenue;
 
   State()
       : controlMode(Robot), controlCommands(),
@@ -80,7 +95,7 @@ struct State {
               Quaternion::identity(), Quaternion::identity(),
               Quaternion::identity()),
         camera({{5, 5, 5}, Quaternion(0.88, -0.325, 0.325, 0)}),
-        displayDebugInfo(true) {}
+        displayDebugInfo(true) , activeMenue(None) {}
 };
 
 inline void moveForwardAndBackwords(Transform &t,
