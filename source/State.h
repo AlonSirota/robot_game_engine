@@ -20,11 +20,6 @@ struct Transform {
 
   Transform(Point position, Quaternion quaternion)
       : position(position), quaternion(quaternion) {}
-
-  // The forward direction.
-  Point direction() { return quaternion.rotatePoint({0, 0, 1}); }
-  Point right() { return quaternion.rotatePoint({1, 0, 0}); }
-  Point up() { return quaternion.rotatePoint({0, 1, 0}); }
 };
 
 struct Robot {
@@ -90,7 +85,7 @@ inline void moveForwardAndBackwords(Transform &t,
                                     ControlCommands controlCommands,
                                     bool shouldInvertForwardDirection,
                                     double deltaTime) {
-  Point forward = t.direction() * (shouldInvertForwardDirection ? -1 : 1);
+  Point forward = t.quaternion.getForwardVector() * (shouldInvertForwardDirection ? -1 : 1);
 
   if (controlCommands.isMovingForward) {
     t.position += forward * ROBOT_SPEED * deltaTime;
@@ -103,44 +98,46 @@ inline void moveLeftAndRight(Transform &t,
                              const ControlCommands &controlCommands,
                              double deltaTime) {
   if (controlCommands.isMovingLeft) {
-    t.position -= t.right() * ROBOT_SPEED * deltaTime;
+    t.position -= t.quaternion.getRightVector() * ROBOT_SPEED * deltaTime;
   } else if (controlCommands.isMovingRight) {
-    t.position += t.right() * ROBOT_SPEED * deltaTime;
+    t.position += t.quaternion.getRightVector() * ROBOT_SPEED * deltaTime;
   }
 }
 
 inline void moveUpAndDown(Transform &t, const ControlCommands &controlCommands,
                           double deltaTime) {
   if (controlCommands.isMovingUp) {
-    t.position += t.up() * ROBOT_SPEED * deltaTime;
+    t.position += t.quaternion.getUpVector() * ROBOT_SPEED * deltaTime;
   } else if (controlCommands.isMovingDown) {
-    t.position -= t.up() * ROBOT_SPEED * deltaTime;
+    t.position -= t.quaternion.getUpVector() * ROBOT_SPEED * deltaTime;
   }
 }
 
 inline void rotateLeftAndRight(Quaternion &quaternion,
                                const ControlCommands &controlCommands,
                                double deltaTime, double rotationSpeed) {
+  Point up = quaternion.getUpVector() * 1;
   if (controlCommands.isRotatingLeft) {
-    Quaternion rotation(-rotationSpeed * deltaTime, Point(0, -1, 0));
-    quaternion = (quaternion * rotation).normalize();
+    Quaternion rotation(rotationSpeed * deltaTime, up);
+    quaternion = (rotation.normalize() * quaternion.normalize()).normalize();
   }
   if (controlCommands.isRotatingRight) {
-    Quaternion rotation(rotationSpeed * deltaTime, Point(0, -1, 0));
-    quaternion = (quaternion * rotation).normalize();
+    Quaternion rotation(-rotationSpeed * deltaTime, up);
+    quaternion = (rotation.normalize() * quaternion.normalize()).normalize();
   }
 }
 
 inline void rotateUpAndDown(Quaternion &quaternion,
                             const ControlCommands &controlCommands,
                             double deltaTime, double rotationSpeed) {
+  Point right = quaternion.getRightVector();
   if (controlCommands.isRotatingUp) {
-    Quaternion rotation(rotationSpeed * deltaTime, Point(1, 0, 0));
-    quaternion = (quaternion * rotation).normalize();
+    Quaternion rotation(rotationSpeed * deltaTime, right);
+    quaternion = (rotation.normalize() * quaternion.normalize()).normalize();
   }
   if (controlCommands.isRotatingDown) {
-    Quaternion rotation(-rotationSpeed * deltaTime, Point(1, 0, 0));
-    quaternion = (quaternion * rotation).normalize();
+    Quaternion rotation(-rotationSpeed * deltaTime, right);
+    quaternion = (rotation.normalize() * quaternion.normalize()).normalize();
   }
 }
 

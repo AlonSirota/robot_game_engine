@@ -1,9 +1,9 @@
 #ifndef QUATERNION_H
 #define QUATERNION_H
-#include <iostream>
 #include "Point.h"
-#include <cmath>
 #include <GL/glut.h>
+#include <cmath>
+#include <iostream>
 
 struct Quaternion {
   // Member variables
@@ -20,6 +20,30 @@ struct Quaternion {
     x = axis.x * std::sin(angle / 2);
     y = axis.y * std::sin(angle / 2);
     z = axis.z * std::sin(angle / 2);
+  }
+
+  Point getUpVector() const {
+    // The initial up vector in object space
+    Point initialUp(0, 1, 0);
+
+    // Rotate the initial up vector by the orientation quaternion.
+    return rotatePoint(initialUp);
+  }
+
+  Point getForwardVector() const {
+    // The initial forward vector in object space. (Assuming positive z is forward)
+    Point initialForward(0, 0, 1);
+
+    // Rotate the initial forward vector by the orientation quaternion.
+    return rotatePoint(initialForward);
+  }
+
+  Point getRightVector() const {
+    // The initial right vector in object space.
+    Point initialRight(1, 0, 0);
+
+    // Rotate the initial right vector by the orientation quaternion.
+    return rotatePoint(initialRight);
   }
 
   // Quaternion multiplication

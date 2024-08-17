@@ -67,9 +67,9 @@ void gluLookAt(Point camera, Point target, Point up) {
 
 void setupCamera(Transform camera, struct Robot robot, PointOfView pov) {
   glMatrixMode(GL_MODELVIEW);
-  Point up = Point(0, 1, 0);
 
   // (0,0,0 are placeholder values, they are initialized in the switch below.
+  Point up = Point(0, 0, 0);
   Point pointOfViewPosition = Point(0, 0, 0);
   Point direction = Point(0, 0, 0);
   Point target = Point(0, 0, 0);
@@ -79,12 +79,14 @@ void setupCamera(Transform camera, struct Robot robot, PointOfView pov) {
     // We need to put the point of view position above the robot, otherwise the
     // head will cover the screen.
     pointOfViewPosition = robot.transform.position + Point(0, ROBOT_HEAD_HEIGHT, 0);
-    direction = robot.transform.direction();
+    direction = robot.transform.quaternion.getForwardVector();
+    up = Point(0, 1, 0);
     break;
   case ThirdPerson:
-    // We multiply the direction by -1 because the camera looks in the direaction of the camera's negative z-axis.
     pointOfViewPosition = camera.position;
-    direction = camera.direction() * -1;
+    // We multiply the direction by -1 because the camera looks in the direaction of the camera's negative z-axis.
+    direction = camera.quaternion.getForwardVector() * -1;
+    up = camera.quaternion.getUpVector();
     break;
   }
 
