@@ -12,7 +12,6 @@ MainMenue::MainMenue(State *state) : UIMenue(state){
     
   TextBox *QuitLable = new TextBox(state, 800, 400, "Quit", 1, 1, 1, 0, 0, 0, 5);
   QuitLable->OnClick = [](State *state, double x, double y) -> void {
-    printf("click\n");
     exit(0);
   };
   this->AddUIElement(QuitLable);

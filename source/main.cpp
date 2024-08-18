@@ -105,9 +105,9 @@ void setupCamera(Transform camera, struct Robot robot, PointOfView pov) {
 void displayFunc() {
   double frameStartTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0;
 
-  setupViewport();
   glClearColor(0.5, 0.8, 0.8, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  setupViewport();
   clearMatrices();
   setupCamera(state.camera, state.robot, state.pointOfView);
   setupProjection();
@@ -130,31 +130,26 @@ void displayFunc() {
 }
 
 void setupViewport() {
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+  int width = state.windowWidth,
+    left = 0,
+    hight = state.windowHeight,
+    bottom = 0;
 
   if (state.windowHeight * RENDER_ASPECT_RATIO < state.windowWidth) {
-    int w = state.windowHeight *
+    width = state.windowHeight *
             (RENDER_ASPECT_RATIO); // w is width adjusted for aspect ratio
-    int left = (state.windowWidth - w) / 2;
-    glViewport(
-        left, 0, w,
-        state.windowHeight); // fix up the viewport to maintain aspect ratio
-    state.viewportInfo.x = left;
-    state.viewportInfo.y = 0;
-    state.viewportInfo.width = w;
-    state.viewportInfo.hight = state.windowHeight;
+    left = (state.windowWidth - width) / 2;
   } else {
-    int h = state.windowWidth *
+    hight = state.windowWidth *
             (1.0 / RENDER_ASPECT_RATIO); // w is width adjusted for aspect ratio
-    int bottom = (state.windowHeight - h) / 2;
-    glViewport(0, bottom, state.windowWidth,
-               h); // fix up the viewport to maintain aspect ratio
-    state.viewportInfo.x = 0;
-    state.viewportInfo.y = bottom;
-    state.viewportInfo.width = state.windowWidth;
-    state.viewportInfo.hight = h;
+    bottom = (state.windowHeight - hight) / 2;
   }
+
+  glViewport(left, bottom, width, hight); // fix up the viewport to maintain aspect ratio
+  state.viewportInfo.x = left;
+  state.viewportInfo.y = bottom;
+  state.viewportInfo.width = width;
+  state.viewportInfo.hight = hight;
 }
 
 void clearMatrices() {
