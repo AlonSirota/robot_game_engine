@@ -7,6 +7,10 @@ UIManager::UIManager(State *state){
     this->AddUIElement(element);
   }
 
+  for(auto element : AddControlInfo(state)){
+    this->AddUIElement(element);
+  }
+
   this->mainMenue = new MainMenue(this->state);
   this->helpMenue = new HelpMenue(this->state);
   this->optionsMenue = new OptionsMenue(this->state);

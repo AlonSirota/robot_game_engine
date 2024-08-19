@@ -11,6 +11,7 @@ string controles[] = {
   "press 4 to control the Robots Upper arm",
   "press 5 to control the Robots lower arm",
   "press 6 to control the Robots hand",
+  "You can also use the mouse to select control point",
 };
 
 HelpMenue::HelpMenue(State *state) : UIMenue(state){

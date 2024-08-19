@@ -7,6 +7,8 @@
 #include "SolidColor.hpp"
 
 #include "UIDebugInfo.hpp"
+#include "UIControlInfo.hpp"
+
 #include "UIMenue.hpp"
 #include "MainMenue.hpp"
 #include "HelpMenue.hpp"

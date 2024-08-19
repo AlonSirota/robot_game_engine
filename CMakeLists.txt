@@ -19,6 +19,7 @@ add_executable(RobotGameEngine source/main.cpp source/ui/ui.hpp source/ui/ui.cpp
                                 source/ui/HelpMenue.hpp source/ui/HelpMenue.cpp
                                 source/ui/OptionsMenue.hpp source/ui/OptionsMenue.cpp
                                 source/ui/UIDebugInfo.hpp source/ui/UIDebugInfo.cpp
+                                source/ui/UIControlInfo.hpp source/ui/UIControlInfo.cpp
                                 source/ui/UIManager.hpp source/ui/UIManager.cpp
 )
 
