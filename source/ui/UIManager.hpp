@@ -33,4 +33,5 @@ public:
     void Draw();
     void AddUIElement(UIElement *element);
     bool MouseClick(double mX, double mY);
+    void KeyPress(unsigned char);
 };

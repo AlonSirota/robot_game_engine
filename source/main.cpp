@@ -359,7 +359,7 @@ void keyboardFunc(unsigned char key, int x, int y) {
       state.activeMenue = None;
     }
   }
-
+  uiManager.KeyPress(key);
   if(state.activeMenue != None){return;}
 
   switch (key) {

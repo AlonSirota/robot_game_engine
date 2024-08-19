@@ -13,6 +13,7 @@ add_executable(RobotGameEngine source/main.cpp source/ui/ui.hpp source/ui/ui.cpp
                                 source/ui/UIElement.hpp
                                 source/ui/TextLable.hpp source/ui/TextLable.cpp
                                 source/ui/TextBox.hpp source/ui/TextBox.cpp
+                                source/ui/TextBoxInput.hpp source/ui/TextBoxInput.cpp
                                 source/ui/SolidColor.hpp source/ui/SolidColor.cpp
                                 source/ui/UIMenue.hpp source/ui/UIMenue.cpp
                                 source/ui/MainMenue.hpp source/ui/MainMenue.cpp

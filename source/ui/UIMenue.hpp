@@ -17,4 +17,5 @@ public:
     void Draw();
     bool MouseClick(double mX, double mY);
     void AddUIElement(UIElement *element);
+    void KeyPress(unsigned char);
 };

@@ -16,6 +16,8 @@ void TextLable::Draw() {
     return;
   };
 
+  UIElement::Draw();
+
   const char *lable1;
   if (this->updateString == nullptr) {
     lable1 = this->text.c_str();

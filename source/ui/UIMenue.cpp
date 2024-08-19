@@ -21,14 +21,21 @@ UIMenue::~UIMenue(){
 bool UIMenue::MouseClick(double mX, double mY){
     if(!this->isActive){return false;};
 
+    bool result = false;
     for(auto element : this->elements){
         if(element->MouseClick(mX, mY)){
-            return true;
+            result = true;
         }
     };
 
-    return false;
+    return result;
 }
 void UIMenue::AddUIElement(UIElement *element) {
   this->elements.push_back(element);
+}
+
+void UIMenue::KeyPress(unsigned char c){
+    for(auto element : this->elements){
+        element->KeyPress(c);
+    };
 }

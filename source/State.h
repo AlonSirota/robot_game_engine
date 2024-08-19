@@ -87,13 +87,20 @@ struct State {
 
   ActiveMenue activeMenue;
 
+  GLint AmbientR;
+  GLint AmbientG;
+  GLint AmbientB;
+  GLint AmbientI;
+  
+
   State()
       : pointOfView(ThirdPerson), controlMode(Robot), controlCommands(),
         robot({{0, 0, 0}, {1, 0, 0}}, Quaternion::identity(),
               Quaternion::identity(), Quaternion::identity(),
               Quaternion::identity()),
         camera({{5, 5, 5}, Quaternion(0.88, -0.325, 0.325, 0)}),
-        displayDebugInfo(false) , activeMenue(Help) {}
+        displayDebugInfo(false) , activeMenue(Help),
+        AmbientR(255), AmbientG(255), AmbientB(255), AmbientI(255) {}
 };
 
 inline void moveForwardAndBackwords(Transform &t,

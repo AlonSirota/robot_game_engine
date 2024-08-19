@@ -77,3 +77,26 @@ bool UIManager::MouseClick(double mX, double mY){
 
     return false;
 }
+
+void UIManager::KeyPress(unsigned char c){
+    switch(state->activeMenue){
+    case Main:
+      this->mainMenue->KeyPress(c);
+      return;
+    case Help:
+      this->helpMenue->KeyPress(c);
+      return;
+    case Options:
+      this->optionsMenue->KeyPress(c);
+      return;
+    case None:
+    default:
+      break;
+  }
+
+  for(auto element : this->elements){
+    element->KeyPress(c);
+  };
+
+    return;
+}
