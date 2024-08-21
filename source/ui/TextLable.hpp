@@ -4,7 +4,6 @@
 
 class TextLable : public UIElement{
 protected:
-    string text;
     double color[3];
 
     double minX;
@@ -15,9 +14,11 @@ protected:
 
     double textSize;
 
-    void calculateDimentions();
+    virtual void calculateDimentions();
 
 public:
+    string text;
+
     TextLable(State *state, double posX, double posY, string text, double colorR, double colorG, double colorB, double textSize = 1.0);
     string (*updateString)(State*); 
 

@@ -8,12 +8,12 @@
 class TextBoxInput : public TextBox{
 
 public:
-    string actualText;
-    unsigned int size;
+    double width;
 
-    TextBoxInput(State *state, double posX, double posY, string text, double colorR, double colorG, double colorB, double backgroundColorR, double backgroundColorG, double backgroundColorB, unsigned int size, double textSize = 1.0);
+    TextBoxInput(State *state, double posX, double posY, string text, double colorR, double colorG, double colorB, double backgroundColorR, double backgroundColorG, double backgroundColorB, double width, double textSize = 1.0);
     void KeyPress(unsigned char);
     bool MouseClick(double mX, double mY);
 
     void Draw();
+    void calculateDimentions();
 };

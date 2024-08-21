@@ -1,24 +1,19 @@
 #include "TextBoxInput.hpp"
 
-TextBoxInput::TextBoxInput(State *state, double posX, double posY, string text, double colorR, double colorG, double colorB, double backgroundColorR, double backgroundColorG, double backgroundColorB, unsigned int size, double textSize) : TextBox(state, posX, posY, text, colorR, colorG, colorB, backgroundColorR, backgroundColorG, backgroundColorB, textSize){
-    this->size = size;
-    for(int i = 0; i < size; i++){
-        this->text.append(" ");
-    }
+TextBoxInput::TextBoxInput(State *state, double posX, double posY, string text, double colorR, double colorG, double colorB, double backgroundColorR, double backgroundColorG, double backgroundColorB, double width, double textSize) : TextBox(state, posX, posY, text, colorR, colorG, colorB, backgroundColorR, backgroundColorG, backgroundColorB, textSize){
+    this->width = width;
 }
 
 void TextBoxInput::KeyPress(unsigned char c){
     if(this->isSelected ){
-        if(c == '\b' && this->actualText.size() > 0){//backspace
-            this->actualText.pop_back();
-        }else if(this->actualText.size() < this->size){
-            this->actualText += ((char) c);
-        }
-        this->text.clear();
-        this->text += ' ';
-        this->text += this->actualText;
-        for(int i = this->text.size(); i < size; i++){
-            this->text.append(" ");
+        if(c == '\b' && this->text.size() > 0){//backspace
+            this->text.pop_back();
+        }else{
+            this->text += ((char) c);
+            TextBox::calculateDimentions();
+            if(this->maxX - this->minX > this->width){
+                this->text.pop_back();
+            }
         }
     }
 }
@@ -33,11 +28,10 @@ bool TextBoxInput::MouseClick(double mX, double mY){
 }
 
 void TextBoxInput::Draw(){
-    this->text.clear();
-    this->text += ' ';
-    this->text += this->actualText;
-    for(int i = this->text.size(); i < size; i++){
-        this->text.append(" ");
-    }
     TextBox::Draw();
+}
+
+void TextBoxInput::calculateDimentions(){
+    TextBox::calculateDimentions();
+    this->maxX = this->minX + this->width;
 }
