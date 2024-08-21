@@ -15,11 +15,24 @@
 #define ROBOT_HEAD_HEIGHT 1.0
 
 GLuint floorTextureId;
+
+GLfloat redColor[] = {1.0f, 0.0f, 0.0f, 1.0f};
+GLfloat greenColor[] = {0.0f, 1.0f, 0.0f, 1.0f};
+GLfloat blueColor[] = {0.0f, 0.0f, 1.0f, 1.0f};
+GLfloat whiteColor[] = {1.0f, 1.0f, 1.0f, 1.0f};
+GLfloat gray1Color[] = {0.5f, 0.5f, 0.5f, 1.0f};
+GLfloat gray2Color[] = {0.7f, 0.7f, 0.7f, 1.0f};
+
+GLfloat clawColor[] = {0.2f, 0.2f, 1.0f, 1.0f};
+GLfloat upperArmColor[] = {0.8f, 0.3f, 0.3f, 1.0f};
+GLfloat lowerArmColor[] = {0.2f, 0.8f, 0.2f, 1.0f};
+
 void renderFloor();
 void setupViewport();
 void clearMatrices();
 void pushMatrices();
 void popMatrices();
+void setupLighting();
 void setupCamera(Transform camera, struct Robot robot, PointOfView pov);
 void displayFunc();
 void displayRobot(struct Robot robot);
@@ -39,17 +52,17 @@ UIManager uiManager(&state);
 void drawAxis() {
   glBegin(GL_LINES);
   // y-axis (green)
-  glColor3f(0, 1, 0);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, greenColor);
   glVertex3f(0, 0, 0);
   glVertex3f(0, 100, 0);
 
   // x-axis (red)
-  glColor3f(1, 0, 0);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, redColor);
   glVertex3f(0, 0, 0);
   glVertex3f(100, 0, 0);
 
   // z-axis (blue)
-  glColor3f(0, 0, 1);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, blueColor);
   glVertex3f(0, 0, 0);
   glVertex3f(0, 0, 100);
   glEnd();
@@ -109,6 +122,7 @@ void displayFunc() {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   setupViewport();
   clearMatrices();
+  setupLighting();
   setupCamera(state.camera, state.robot, state.pointOfView);
   setupProjection();
   drawAxis();
@@ -173,6 +187,12 @@ void popMatrices() {
   glPopMatrix();
 }
 
+void setupLighting(){
+  GLfloat intensityMultipler = state.AmbientI / 255.0f;
+  GLfloat ambiant[] = {state.AmbientR / 255.0f * intensityMultipler, state.AmbientG / 255.0f * intensityMultipler, state.AmbientB / 255.0f * intensityMultipler, 1.0f};
+  glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambiant);
+}
+
 void glVertexPoint(Point p) { glVertex3f(p.x, p.y, p.z); }
 
 void glTranslatePoint(Point p) { glTranslatef(p.x, p.y, p.z); }
@@ -180,7 +200,7 @@ void glTranslatePoint(Point p) { glTranslatef(p.x, p.y, p.z); }
 void displayRobotTorso() {
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
-  glColor3f(0.5, 0.5, 0.5);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, gray1Color);
   glScalef(1, 2, 0.5);
   glutSolidCube(1);
   glPopMatrix();
@@ -196,13 +216,13 @@ void displayRobotHead(Quaternion quaternion) {
   glMultMatrixf(quaternion.toMatrix());
 
   // Draw the head (grey sphere)
-  glColor3f(0.7, 0.7, 0.7); // Grey color
+  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, gray2Color);
   glutSolidSphere(
       headRadius, 10,
       10); // Radius 0.5, 10 slices and stacks for a smooth enough shape.
 
   // Now I'll draw the eyes.
-  glColor3f(1.0, 0, 0); // Red color
+  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, redColor);
 
   // Right eye
   glPushMatrix();
@@ -226,7 +246,7 @@ void displayClaw() {
   GLfloat clawDepth = 0.1;
   GLfloat clawOpennessDegrees = 15;
 
-  glColor3f(0.2, 0.2, 1);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, clawColor);
 
   // Left prong.
   glPushMatrix();
@@ -268,7 +288,7 @@ void displayRobotArm(Quaternion armRotation, Quaternion elbowRotation,
   // Draw upper arm
   glPushMatrix();
   glScalef(0.2, upperArmLength, 0.2);
-  glColor3f(0.8, 0.3, 0.3);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, upperArmColor);
   glutSolidCube(1);
   glPopMatrix();
 
@@ -286,7 +306,7 @@ void displayRobotArm(Quaternion armRotation, Quaternion elbowRotation,
 
   // Draw lower arm
   glPushMatrix();
-  glColor3f(0.2, 0.8, 0.2);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, lowerArmColor);
   glScalef(0.15, lowerArmLength, 0.15);
   glutSolidCube(1);
   glPopMatrix();
@@ -333,8 +353,7 @@ void renderFloor() {
 
   // The texture is configured to repeat.
   int textureRepeatCount = 4;
-
-  glColor3f(1, 1, 1);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, whiteColor);
   glBegin(GL_QUADS);
   glNormal3f(0, 1, 0);
   glTexCoord2f(0, 0);
@@ -533,6 +552,10 @@ int main(int argc, char **argv) {
   glEnable(GL_MULTISAMPLE);
   glEnable(GL_BLEND); //Enable blending.
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Set blending function.
+
+  glEnable(GL_LIGHTING);
+  glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
+  
 
 
   initFloorTexture();

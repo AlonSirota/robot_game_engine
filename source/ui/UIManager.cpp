@@ -21,6 +21,7 @@ void UIManager::AddUIElement(UIElement *element) {
 }
 
 void UIManager::Draw() {
+  glDisable(GL_LIGHTING);
   switch(state->activeMenue){
     case Main:
       this->mainMenue->Draw();
@@ -39,7 +40,7 @@ void UIManager::Draw() {
   for (auto element : elements) {
     element->Draw();
   };
-
+  glEnable(GL_LIGHTING);
 };
 
 UIManager::~UIManager() {
