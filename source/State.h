@@ -2,7 +2,7 @@
 #define STATE_H
 #include "Quaternion.h"
 
-#define ROBOT_SPEED 1
+#define MOVE_SPEED 5
 #define ROBOT_ROTATION_SPEED 1
 #define CAMERA_ROTATION_SPEED 1
 
@@ -110,9 +110,9 @@ inline void moveForwardAndBackwords(Transform &t,
   Point forward = t.quaternion.getForwardVector() * (shouldInvertForwardDirection ? -1 : 1);
 
   if (controlCommands.isMovingForward) {
-    t.position += forward * ROBOT_SPEED * deltaTime;
+    t.position += forward * MOVE_SPEED * deltaTime;
   } else if (controlCommands.isMovingBackward) {
-    t.position -= forward * ROBOT_SPEED * deltaTime;
+    t.position -= forward * MOVE_SPEED * deltaTime;
   }
 }
 
@@ -120,18 +120,18 @@ inline void moveLeftAndRight(Transform &t,
                              const ControlCommands &controlCommands,
                              double deltaTime) {
   if (controlCommands.isMovingLeft) {
-    t.position -= t.quaternion.getRightVector() * ROBOT_SPEED * deltaTime;
+    t.position -= t.quaternion.getRightVector() * MOVE_SPEED * deltaTime;
   } else if (controlCommands.isMovingRight) {
-    t.position += t.quaternion.getRightVector() * ROBOT_SPEED * deltaTime;
+    t.position += t.quaternion.getRightVector() * MOVE_SPEED * deltaTime;
   }
 }
 
 inline void moveUpAndDown(Transform &t, const ControlCommands &controlCommands,
                           double deltaTime) {
   if (controlCommands.isMovingUp) {
-    t.position += t.quaternion.getUpVector() * ROBOT_SPEED * deltaTime;
+    t.position += t.quaternion.getUpVector() * MOVE_SPEED * deltaTime;
   } else if (controlCommands.isMovingDown) {
-    t.position -= t.quaternion.getUpVector() * ROBOT_SPEED * deltaTime;
+    t.position -= t.quaternion.getUpVector() * MOVE_SPEED * deltaTime;
   }
 }
 
