@@ -174,6 +174,7 @@ void setupAmbientLighting(){
 
 void setupLighting() {
   glEnable(GL_LIGHTING);
+  glEnable(GL_COLOR_MATERIAL);
   setupAmbientLighting();
 }
  
@@ -184,7 +185,7 @@ void glTranslatePoint(Point p) { glTranslatef(p.x, p.y, p.z); }
 void displayRobotTorso() {
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
-  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, gray1Color);
+  glColor3fv(gray1Color);
   glScalef(1, 2, 0.5);
   glutSolidCube(1);
   glPopMatrix();
@@ -200,13 +201,13 @@ void displayRobotHead(Quaternion quaternion) {
   glMultMatrixf(quaternion.toMatrix());
 
   // Draw the head (grey sphere)
-  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, gray2Color);
+  glColor3fv(gray2Color);
   glutSolidSphere(
       headRadius, 10,
       10); // Radius 0.5, 10 slices and stacks for a smooth enough shape.
 
   // Now I'll draw the eyes.
-  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, redColor);
+  glColor3fv(redColor);
 
   // Right eye
   glPushMatrix();
@@ -230,7 +231,7 @@ void displayClaw() {
   GLfloat clawDepth = 0.1;
   GLfloat clawOpennessDegrees = 15;
 
-  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, clawColor);
+  glColor3fv(clawColor);
 
   // Left prong.
   glPushMatrix();
@@ -272,7 +273,7 @@ void displayRobotArm(Quaternion armRotation, Quaternion elbowRotation,
   // Draw upper arm
   glPushMatrix();
   glScalef(0.2, upperArmLength, 0.2);
-  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, upperArmColor);
+  glColor3fv(upperArmColor);
   glutSolidCube(1);
   glPopMatrix();
 
@@ -290,7 +291,7 @@ void displayRobotArm(Quaternion armRotation, Quaternion elbowRotation,
 
   // Draw lower arm
   glPushMatrix();
-  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, lowerArmColor);
+  glColor3fv(lowerArmColor);
   glScalef(0.15, lowerArmLength, 0.15);
   glutSolidCube(1);
   glPopMatrix();
@@ -337,7 +338,7 @@ void renderFloor() {
 
   // The texture is configured to repeat.
   int textureRepeatCount = 4;
-  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, whiteColor);
+  glColor3fv(whiteColor);
   glBegin(GL_QUADS);
   glNormal3f(0, 1, 0);
   glTexCoord2f(0, 0);
@@ -533,6 +534,7 @@ int main(int argc, char **argv) {
   glutCreateWindow("Final project.");
   glutInitDisplayMode(GLUT_DEPTH);
   glEnable(GL_DEPTH_TEST);
+  glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
   glEnable(GL_MULTISAMPLE);
   glEnable(GL_BLEND); //Enable blending.
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Set blending function.
