@@ -423,24 +423,6 @@ void keyboardFunc(unsigned char key, int x, int y) {
   }
 
   switch (key) {
-  case '1':
-    state.controlMode = Camera;
-    break;
-  case '2':
-    state.controlMode = Robot;
-    break;
-  case '3':
-    state.controlMode = RobotHead;
-    break;
-  case '4':
-    state.controlMode = UpperArm;
-    break;
-  case '5':
-    state.controlMode = LowerArm;
-    break;
-  case '6':
-    state.controlMode = Hand;
-    break;
   case ' ':
     // toggle between first person and third person.
     state.pointOfView =
