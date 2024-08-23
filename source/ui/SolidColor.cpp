@@ -29,7 +29,7 @@ bool SolidColor::MouseClick(double mX, double mY){
     return isInside;
 }
 
-void DrawCircle(float x, float y, float radios, float width, double borderColor[], double infilColor[], UINT samples){
+void DrawCircle(float x, float y, float radios, float width, double borderColor[], double infilColor[], uint samples){
     //begin drawing circle 
     glColor4d(borderColor[0], borderColor[1], borderColor[2], borderColor[3]);
     glLineWidth(width);
