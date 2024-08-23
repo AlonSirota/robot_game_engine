@@ -105,8 +105,8 @@ void displayFunc() {
   setupLighting();
   setupCamera(state.camera, state.robot, state.pointOfView);
   setupProjection();
-  displayRobot(state.robot);
   renderFloor();
+  displayRobot(state.robot);
   displayUI();
 
   glFlush();
@@ -177,8 +177,20 @@ void setupLighting() {
   glEnable(GL_LIGHTING);
   glEnable(GL_COLOR_MATERIAL);
   setupAmbientLighting();
+
+  /// The first three numbers are the xyz, and the 4th number is a boolean
+  /// controlling if this point light is infinitely far away or not.
+  GLfloat purpleLampPosition[] = {-5, 2, 0, 1};
+  GLfloat purpleLampColor[] = {1, 0, 1, 1};
+  glEnable(GL_LIGHT0);
+  glLightfv(GL_LIGHT0, GL_POSITION, purpleLampPosition);
+  glLightfv(GL_LIGHT0, GL_DIFFUSE, purpleLampColor);
+  glLightfv(GL_LIGHT0, GL_SPECULAR, purpleLampColor);
+
+  glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.002);
+  glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.01);
 }
- 
+
 void glVertexPoint(Point p) { glVertex3f(p.x, p.y, p.z); }
 
 void glTranslatePoint(Point p) { glTranslatef(p.x, p.y, p.z); }
@@ -335,11 +347,17 @@ void renderFloor() {
 
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
+
+  // configure the floor to be shiny
+  GLfloat floorSpecularColor[] = {1.0f, 1.0f, 1.0f, 1.0f};
+  glMaterialfv(GL_FRONT, GL_SPECULAR, floorSpecularColor);
+  glMaterialf(GL_FRONT, GL_SHININESS, 5.0f);
+  glColor3fv(whiteColor);
+
   glScalef(10, 1, 10);
 
   // The texture is configured to repeat.
   int textureRepeatCount = 4;
-  glColor3fv(whiteColor);
   glBegin(GL_QUADS);
   glNormal3f(0, 1, 0);
   glTexCoord2f(0, 0);
@@ -351,6 +369,12 @@ void renderFloor() {
   glTexCoord2f(0, textureRepeatCount);
   glVertex3f(-1, 0, 1);
   glEnd();
+
+  // turn off the specular that was used for the floor, so we won't affect other
+  // objects in the scene.
+  GLfloat zeroIntensityColor[] = {0.0f, 0.0f, 0.0f, 0.0f};
+  glMaterialfv(GL_FRONT, GL_SPECULAR, zeroIntensityColor);
+  glMaterialf(GL_FRONT, GL_SHININESS, 0);
 
   glPopMatrix();
   glDisable(GL_TEXTURE_2D);
@@ -538,6 +562,8 @@ int main(int argc, char **argv) {
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // Set blending function.
 
   glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
+  // This enables the specular light to be visible on the objects that use texture, like the floor.
+  glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
 
   initFloorTexture();
   glutDisplayFunc(displayFunc);
