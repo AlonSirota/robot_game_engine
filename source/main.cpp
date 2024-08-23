@@ -36,7 +36,6 @@ void setupLighting();
 void setupCamera(Transform camera, struct Robot robot, PointOfView pov);
 void displayFunc();
 void displayRobot(struct Robot robot);
-void drawAxis();
 void keyboardFunc(unsigned char key, int x, int y);
 void keyboardUpFunc(unsigned char key, int x, int y);
 void mouseFunc(int button, int state, int x, int y);
@@ -48,25 +47,6 @@ double presentedTime = 0;
 State state = State();
 
 UIManager uiManager(&state);
-
-void drawAxis() {
-  glBegin(GL_LINES);
-  // y-axis (green)
-  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, greenColor);
-  glVertex3f(0, 0, 0);
-  glVertex3f(0, 100, 0);
-
-  // x-axis (red)
-  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, redColor);
-  glVertex3f(0, 0, 0);
-  glVertex3f(100, 0, 0);
-
-  // z-axis (blue)
-  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, blueColor);
-  glVertex3f(0, 0, 0);
-  glVertex3f(0, 0, 100);
-  glEnd();
-}
 
 void setupProjection() {
   glMatrixMode(GL_PROJECTION);
@@ -125,7 +105,6 @@ void displayFunc() {
   setupLighting();
   setupCamera(state.camera, state.robot, state.pointOfView);
   setupProjection();
-  drawAxis();
   displayRobot(state.robot);
   renderFloor();
   displayUI();
