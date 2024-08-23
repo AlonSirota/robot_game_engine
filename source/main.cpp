@@ -22,11 +22,16 @@ GLfloat blueColor[] = {0.0f, 0.0f, 1.0f, 1.0f};
 GLfloat whiteColor[] = {1.0f, 1.0f, 1.0f, 1.0f};
 GLfloat gray1Color[] = {0.5f, 0.5f, 0.5f, 1.0f};
 GLfloat gray2Color[] = {0.7f, 0.7f, 0.7f, 1.0f};
+GLfloat metal_ambient[] = {0.3f, 0.3f, 0.3f, 1.0f};
+GLfloat metal_diffuse[] = {0.7f, 0.7f, 0.7f, 1.0f};
+GLfloat metal_specular[] = {1.0f, 1.0f, 1.0f, 1.0f};
+GLfloat metal_shininess = 20.0f;
 
 GLfloat clawColor[] = {0.2f, 0.2f, 1.0f, 1.0f};
 GLfloat upperArmColor[] = {0.8f, 0.3f, 0.3f, 1.0f};
 GLfloat lowerArmColor[] = {0.2f, 0.8f, 0.2f, 1.0f};
 
+void drawWoodenDoor(); // Add this line to draw the door
 void renderFloor();
 void drawLamp();
 void setupViewport();
@@ -108,6 +113,7 @@ void displayFunc() {
   setupProjection();
   renderFloor();
   drawLamp();
+  drawWoodenDoor();
   displayRobot(state.robot);
   displayUI();
 
@@ -189,6 +195,7 @@ void setupLighting() {
   glLightfv(GL_LIGHT0, GL_DIFFUSE, purpleLampColor);
   glLightfv(GL_LIGHT0, GL_SPECULAR, purpleLampColor);
 
+  glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 2);
   glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.002);
   glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.01);
 }
@@ -199,9 +206,9 @@ void glTranslatePoint(Point p) { glTranslatef(p.x, p.y, p.z); }
 
 void drawLamp() {
   glPushMatrix();
-  // Position the lamp on the floor, in some arbitrary xz position.
-  glTranslatef(-3, 0, 0);
-  
+  // Position the lamp on the floor, in some arbitrary xz po
+  glTranslatef(-3, 0, -4);
+
   // Draw the base (cylinder)
   GLUquadricObj *quadric = gluNewQuadric();
   glColor3f(0.4f, 0.4f, 0.4f); // Dark gray color for the base
@@ -221,6 +228,46 @@ void drawLamp() {
   gluDeleteQuadric(quadric);
   
   setupLighting();
+  glPopMatrix();
+}
+
+void drawWoodenDoor() {
+  glPushMatrix();
+
+  // Position the door
+  glTranslatef(2, 1, -7);
+
+  // Set material properties for wood
+  // these colors are low intensity to model wood in phong's illumination mode.
+  // (no specular lighting).
+  GLfloat wood_ambient_and_diffuse[] = {0.6f, 0.3f, 0.1f, 1.0f};
+  GLfloat wood_specular[] = {0.0f, 0.0f, 0.0f, 0.0f};
+  GLfloat wood_shininess = 0.0f;
+
+  glColor4fv(wood_ambient_and_diffuse);
+  glMaterialfv(GL_FRONT, GL_AMBIENT, wood_ambient_and_diffuse);
+  glMaterialfv(GL_FRONT, GL_DIFFUSE, wood_ambient_and_diffuse);
+  glMaterialfv(GL_FRONT, GL_SPECULAR, wood_specular);
+  glMaterialf(GL_FRONT, GL_SHININESS, wood_shininess);
+
+  // Door frame
+  glPushMatrix();
+  glScalef(1.1f, 2.2f, 0.1f);
+  glutSolidCube(1.0);
+  glPopMatrix();
+
+  // Door door knob (metallic sphere)
+  glColor4fv(metal_ambient);
+  glMaterialfv(GL_FRONT, GL_AMBIENT, metal_ambient);
+  glMaterialfv(GL_FRONT, GL_DIFFUSE, metal_diffuse);
+  glMaterialfv(GL_FRONT, GL_SPECULAR, metal_specular);
+  glMaterialf(GL_FRONT, GL_SHININESS, metal_shininess);
+
+  glPushMatrix();
+  glTranslatef(0.35, 0, 0.1);
+  glutSolidSphere(0.09, 20, 20);
+  glPopMatrix();
+
   glPopMatrix();
 }
 
