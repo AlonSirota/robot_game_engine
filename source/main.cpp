@@ -187,12 +187,17 @@ void popMatrices() {
   glPopMatrix();
 }
 
-void setupLighting(){
+void setupAmbientLighting(){
   GLfloat intensityMultipler = state.AmbientI / 255.0f;
   GLfloat ambiant[] = {state.AmbientR / 255.0f * intensityMultipler, state.AmbientG / 255.0f * intensityMultipler, state.AmbientB / 255.0f * intensityMultipler, 1.0f};
   glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambiant);
 }
 
+void setupLighting() {
+  glEnable(GL_LIGHTING);
+  setupAmbientLighting();
+}
+ 
 void glVertexPoint(Point p) { glVertex3f(p.x, p.y, p.z); }
 
 void glTranslatePoint(Point p) { glTranslatef(p.x, p.y, p.z); }
@@ -553,7 +558,6 @@ int main(int argc, char **argv) {
   glEnable(GL_BLEND); //Enable blending.
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Set blending function.
 
-  glEnable(GL_LIGHTING);
   glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
   
 
