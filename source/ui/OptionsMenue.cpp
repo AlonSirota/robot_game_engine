@@ -65,7 +65,54 @@ OptionsMenue::OptionsMenue(State *state) : UIMenue(state){
   AmbiantLightI->text = std::to_string(state->AmbientI);
   this->AddUIElement(AmbiantLightI);
 
+  //point light
+  TextBox *PointLightRedText = new TextBox(state, 300, 400, "Enter Point light Red (0-255):", 1, 1, 1, 0, 0, 0, 2);
+  this->AddUIElement(PointLightRedText);
+  
+  TextBoxInput *PointLightRed = new TextBoxInput(state, 1250, 400, "", 0, 0, 0, 1, 1, 1, 200, 2);
+  PointLightRed->update = [](UIElement* meOrg, State  *state) -> void {
+    TextBoxInput *me = (TextBoxInput *)meOrg;
+    state->PointLightR = atoi(me->text.c_str());
+  };
+  PointLightRed->text = std::to_string(state->PointLightR);
+  this->AddUIElement(PointLightRed);
+
+  TextBox *PointLightGreenText = new TextBox(state, 300, 340, "Enter Point light Green (0-255):", 1, 1, 1, 0, 0, 0, 2);
+  this->AddUIElement(PointLightGreenText);
+  
+  TextBoxInput *PointLightGreen = new TextBoxInput(state, 1250, 340, "", 0, 0, 0, 1, 1, 1, 200, 2);
+  PointLightGreen->update = [](UIElement* meOrg, State  *state) -> void {
+    TextBoxInput *me = (TextBoxInput *)meOrg;
+    state->PointLightG = atoi(me->text.c_str());
+  };
+  PointLightGreen->text = std::to_string(state->PointLightG);
+  this->AddUIElement(PointLightGreen);
+
+  TextBox *PointLightBlueText = new TextBox(state, 300, 280, "Enter Point light Blue (0-255):", 1, 1, 1, 0, 0, 0, 2);
+  this->AddUIElement(PointLightBlueText);
+  
+  TextBoxInput *PointLightBlue = new TextBoxInput(state, 1250, 280, "", 0, 0, 0, 1, 1, 1, 200, 2);
+  PointLightBlue->update = [](UIElement* meOrg, State  *state) -> void {
+    TextBoxInput *me = (TextBoxInput *)meOrg;
+    state->PointLightB = atoi(me->text.c_str());
+  };
+  PointLightBlue->text = std::to_string(state->PointLightB);
+  this->AddUIElement(PointLightBlue);
+
+  TextBox *PointLightIText = new TextBox(state, 300, 220, "Enter Point light Intensity (0-255):", 1, 1, 1, 0, 0, 0, 2);
+  this->AddUIElement(PointLightIText);
+  
+  TextBoxInput *PointLightI = new TextBoxInput(state, 1250, 220, "", 0, 0, 0, 1, 1, 1, 200, 2);
+  PointLightI->update = [](UIElement* meOrg, State  *state) -> void {
+    TextBoxInput *me = (TextBoxInput *)meOrg;
+    state->PointLightI = atoi(me->text.c_str());
+  };
+  PointLightI->text = std::to_string(state->PointLightI);
+  this->AddUIElement(PointLightI);
+
+
   SolidColor *MenuBackground = new SolidColor(state, 0, 0, 1920, 1080, 0, 0, 0, 0.5);
   this->AddUIElement(MenuBackground);
 
 }
+
