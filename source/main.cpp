@@ -123,10 +123,8 @@ void displayFunc() {
 }
 
 void setupViewport() {
-  int width = state.windowWidth,
-    left = 0,
-    hight = state.windowHeight,
-    bottom = 0;
+  int width = state.windowWidth, left = 0, hight = state.windowHeight,
+      bottom = 0;
 
   if (state.windowHeight * RENDER_ASPECT_RATIO < state.windowWidth) {
     width = state.windowHeight *
@@ -138,7 +136,8 @@ void setupViewport() {
     bottom = (state.windowHeight - hight) / 2;
   }
 
-  glViewport(left, bottom, width, hight); // fix up the viewport to maintain aspect ratio
+  glViewport(left, bottom, width,
+             hight); // fix up the viewport to maintain aspect ratio
   state.viewportInfo.x = left;
   state.viewportInfo.y = bottom;
   state.viewportInfo.width = width;
@@ -166,9 +165,11 @@ void popMatrices() {
   glPopMatrix();
 }
 
-void setupAmbientLighting(){
+void setupAmbientLighting() {
   GLfloat intensityMultipler = state.AmbientI / 255.0f;
-  GLfloat ambiant[] = {state.AmbientR / 255.0f * intensityMultipler, state.AmbientG / 255.0f * intensityMultipler, state.AmbientB / 255.0f * intensityMultipler, 1.0f};
+  GLfloat ambiant[] = {state.AmbientR / 255.0f * intensityMultipler,
+                       state.AmbientG / 255.0f * intensityMultipler,
+                       state.AmbientB / 255.0f * intensityMultipler, 1.0f};
   glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambiant);
 }
 
@@ -356,15 +357,17 @@ void renderFloor() {
 }
 
 void keyboardFunc(unsigned char key, int x, int y) {
-  if(key == 27){
-    if(state.activeMenue == None){
+  if (key == 27) {
+    if (state.activeMenue == None) {
       state.activeMenue = Main;
-    }else{
+    } else {
       state.activeMenue = None;
     }
   }
   uiManager.KeyPress(key);
-  if(state.activeMenue != None){return;}
+  if (state.activeMenue != None) {
+    return;
+  }
 
   switch (key) {
   case '1':
@@ -468,7 +471,7 @@ void specialKeyboardKeysUpFunc(int key, int x, int y) {
   }
 }
 
-void adjustMouseCoordToViewPort(int *mX, int *mY){
+void adjustMouseCoordToViewPort(int *mX, int *mY) {
   *mY = state.windowHeight - *mY;
 
   *mX -= state.viewportInfo.x;
@@ -476,23 +479,18 @@ void adjustMouseCoordToViewPort(int *mX, int *mY){
 
   *mX *= 1920.0 / state.viewportInfo.width;
   *mY *= 1080.0 / state.viewportInfo.hight;
-  
 }
 
-void mouseFunc(int button, int mState, int mX, int mY){
+void mouseFunc(int button, int mState, int mX, int mY) {
   adjustMouseCoordToViewPort(&mX, &mY);
 
-  //is in viewport
-  if(mX >= 0 &&
-      mX <= 1920 &&
-      mY >= 0 &&
-      mY <= 1080){
-          
-          if(button == GLUT_LEFT_BUTTON && mState == GLUT_DOWN){
-            uiManager.MouseClick(mX, mY);
-          }
+  // is in viewport
+  if (mX >= 0 && mX <= 1920 && mY >= 0 && mY <= 1080) {
+
+    if (button == GLUT_LEFT_BUTTON && mState == GLUT_DOWN) {
+      uiManager.MouseClick(mX, mY);
+    }
   }
-  
 }
 
 void idleFunc() {
@@ -536,12 +534,10 @@ int main(int argc, char **argv) {
   glEnable(GL_DEPTH_TEST);
   glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
   glEnable(GL_MULTISAMPLE);
-  glEnable(GL_BLEND); //Enable blending.
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Set blending function.
+  glEnable(GL_BLEND);                                // Enable blending.
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // Set blending function.
 
   glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
-  
-
 
   initFloorTexture();
   glutDisplayFunc(displayFunc);
