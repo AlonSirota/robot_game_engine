@@ -27,9 +27,13 @@ bool TextBoxInput::MouseClick(double mX, double mY){
         this->isSelected = !this->isSelected;
         this->swapColors();
         return true;
+    }else{
+        if(this->isSelected){
+            this->isSelected = false;
+            this->swapColors();
+        }
+        return false;
     };
-    this->isSelected = false;
-    return false;
 }
 
 void TextBoxInput::Draw(){
