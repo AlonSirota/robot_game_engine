@@ -103,9 +103,9 @@ struct State {
               Quaternion::identity(), Quaternion::identity(),
               Quaternion::identity()),
         camera({{5, 5, 5}, Quaternion(0.88, -0.325, 0.325, 0)}),
-        displayDebugInfo(false), activeMenue(None), AmbientR(255),
-        AmbientG(255), AmbientB(255), AmbientI(150), PointLightR(255),
-        PointLightG(255), PointLightB(255), PointLightI(255) {}
+        displayDebugInfo(false) , activeMenue(None),
+        AmbientR(255), AmbientG(255), AmbientB(255), AmbientI(150),
+        PointLightR(255), PointLightG(255), PointLightB(255), PointLightI(255) {}
 };
 
 inline void moveForwardAndBackwords(Transform &t,
