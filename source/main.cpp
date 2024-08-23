@@ -28,6 +28,7 @@ GLfloat upperArmColor[] = {0.8f, 0.3f, 0.3f, 1.0f};
 GLfloat lowerArmColor[] = {0.2f, 0.8f, 0.2f, 1.0f};
 
 void renderFloor();
+void drawLamp();
 void setupViewport();
 void clearMatrices();
 void pushMatrices();
@@ -106,6 +107,7 @@ void displayFunc() {
   setupCamera(state.camera, state.robot, state.pointOfView);
   setupProjection();
   renderFloor();
+  drawLamp();
   displayRobot(state.robot);
   displayUI();
 
@@ -180,10 +182,10 @@ void setupLighting() {
 
   /// The first three numbers are the xyz, and the 4th number is a boolean
   /// controlling if this point light is infinitely far away or not.
-  GLfloat purpleLampPosition[] = {-5, 2, 0, 1};
   GLfloat purpleLampColor[] = {1, 0, 1, 1};
   glEnable(GL_LIGHT0);
-  glLightfv(GL_LIGHT0, GL_POSITION, purpleLampPosition);
+  GLfloat lightPosition[] = {0, 0, 0, 1};
+  glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
   glLightfv(GL_LIGHT0, GL_DIFFUSE, purpleLampColor);
   glLightfv(GL_LIGHT0, GL_SPECULAR, purpleLampColor);
 
@@ -194,6 +196,14 @@ void setupLighting() {
 void glVertexPoint(Point p) { glVertex3f(p.x, p.y, p.z); }
 
 void glTranslatePoint(Point p) { glTranslatef(p.x, p.y, p.z); }
+
+void drawLamp() {
+  glPushMatrix();
+  glTranslatePoint({-3,1,0});
+  glutSolidSphere(0.1, 10, 10);
+  setupLighting();
+  glPopMatrix();
+}
 
 void displayRobotTorso() {
   glMatrixMode(GL_MODELVIEW);
