@@ -18,12 +18,8 @@ void TextLable::Draw() {
 
   UIElement::Draw();
 
-  const char *lable1;
-  if (this->updateString == nullptr) {
-    lable1 = this->text.c_str();
-  } else {
-    lable1 = this->updateString(this->state).c_str();
-        this->text.assign(lable1);
+  if (this->updateString != nullptr) {
+    this->text.assign(this->updateString(this->state));
   }
 
   glMatrixMode(GL_MODELVIEW);
@@ -36,8 +32,8 @@ void TextLable::Draw() {
       RENDER_WIDTH / (glutStrokeWidthf(GLUT_STROKE_ROMAN, 'a') * 150);
   scaleFactor *= this->textSize;
   glScaled(scaleFactor, scaleFactor, scaleFactor);
-  while (lable1[pos]) { // nullterminated string
-    glutStrokeCharacter(GLUT_STROKE_ROMAN, lable1[pos++]);
+  for(char c : this->text){
+    glutStrokeCharacter(GLUT_STROKE_ROMAN, c);
   }
   glPopMatrix();
 }
