@@ -178,6 +178,9 @@ inline void updatedState(State &currentState, double deltaTime) {
     rotateLeftAndRight(currentState.robot.headRotationRelativeToTransform,
                        currentState.controlCommands, deltaTime,
                        ROBOT_ROTATION_SPEED);
+    rotateUpAndDown(currentState.robot.headRotationRelativeToTransform,
+                    currentState.controlCommands, deltaTime,
+                    CAMERA_ROTATION_SPEED);
     break;
   case Camera:
     moveForwardAndBackwords(currentState.camera, currentState.controlCommands,
