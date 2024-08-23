@@ -1,6 +1,6 @@
 #include "HelpMenue.hpp"
 
-string controles[] = {
+const char* controles[] = {
   "Uses W A S D for movement",
   "Uses Arrow keys to look around",
   "Use Esc key to open / close menue",
@@ -26,8 +26,8 @@ HelpMenue::HelpMenue(State *state) : UIMenue(state){
 
   double Y = 800;
 
-  for (auto line : controles){
-    TextBox *Text = new TextBox(state, 300, Y, line, 1, 1, 1, 0, 0, 0, 2);
+  for (const char *line : controles){
+    TextBox *Text = new TextBox(state, 300, Y, string(line), 1, 1, 1, 0, 0, 0, 2);
     this->AddUIElement(Text);
 
     Y -= 55;
