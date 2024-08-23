@@ -214,7 +214,8 @@ void drawLamp() {
   glColor3f(0.4f, 0.4f, 0.4f); // Dark gray color for the base
   glPushMatrix();
   glRotatef(-90, 1, 0, 0); // Rotate to stand upright
-  gluCylinder(quadric, 0.2, 0.2, 0.5, 20, 1); // radius_top, radius_bottom, height, slices, stacks
+  gluCylinder(quadric, 0.2, 0.2, 0.5, 20,
+              1); // radius_top, radius_bottom, height, slices, stacks
   glPopMatrix();
 
   // Draw the lampshade (cone)
@@ -222,11 +223,12 @@ void drawLamp() {
   glPushMatrix();
   glTranslatef(0, 0.5, 0); // Move up to the top of the base
   glRotatef(-90, 1, 0, 0); // Rotate to point upwards
-  gluCylinder(quadric, 0.4, 0.1, 0.4, 20, 1); // radius_bottom, radius_top, height, slices, stacks
+  gluCylinder(quadric, 0.4, 0.1, 0.4, 20,
+              1); // radius_bottom, radius_top, height, slices, stacks
   glPopMatrix();
 
   gluDeleteQuadric(quadric);
-  
+
   setupLighting();
   glPopMatrix();
 }
