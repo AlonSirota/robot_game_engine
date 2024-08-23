@@ -571,12 +571,9 @@ int main(int argc, char **argv) {
   glEnable(GL_BLEND);                                // Enable blending.
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // Set blending function.
 
+  // This makes specular lighting respect the current point of view.
   glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
-  // This enables the specular light to be visible on the objects that use texture, like the floor.
-  #ifdef GL_VERSION_1_2
-  glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
-  #endif
-  
+
   initFloorTexture();
   glutDisplayFunc(displayFunc);
   glutIdleFunc(idleFunc);
