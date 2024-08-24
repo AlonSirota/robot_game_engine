@@ -1,17 +1,13 @@
 #include "HelpMenue.hpp"
 
 const char* controles[] = {
-  "Uses W A S D for movement",
-  "Uses Arrow keys to look around",
+  "Use W A S D for movement",
+  "Use Q for up movement",
+  "Use E for down movement",
+  "Use Arrow keys to look around",
   "Use Esc key to open / close menue",
   "Press the space bar to toggle 1st/3rd person view",
-  "press 1 to control Camera",
-  "press 2 to control Robot",
-  "press 3 to control the Robots head",
-  "press 4 to control the Robots Upper arm",
-  "press 5 to control the Robots lower arm",
-  "press 6 to control the Robots hand",
-  "You can also use the mouse to select control point",
+  "Ese the mouse to select control point",
 };
 
 HelpMenue::HelpMenue(State *state) : UIMenue(state){

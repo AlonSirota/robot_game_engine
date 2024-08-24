@@ -144,7 +144,7 @@ std::list<UIElement*> AddControlInfo(State *state){
     result.push_back(CameraBodyElement);
 
 
-    SolidColorTriangle *LampTriangleElement = new SolidColorTriangle(state, 550, 150, 150, 1, 1, 1, 0.8);
+    SolidColorTriangle *LampTriangleElement = new SolidColorTriangle(state, 550, 150, 150, 0, 0, 0, 0.8);
     LampTriangleElement->update = [](UIElement* meOrg, State* state) -> void {
         SolidColorTriangle *me = (SolidColorTriangle *)meOrg;
         if(state->controlMode == Lamp){
@@ -153,9 +153,9 @@ std::list<UIElement*> AddControlInfo(State *state){
             me->color[2] = 0;
             me->color[3] = 0.8;
         }else{
-            me->color[0] = 1;
-            me->color[1] = 1;
-            me->color[2] = 1;
+            me->color[0] = 0;
+            me->color[1] = 0;
+            me->color[2] = 0;
             me->color[3] = 0.8;
         }
     };
