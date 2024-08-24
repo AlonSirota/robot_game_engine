@@ -215,18 +215,23 @@ void setupLighting() {
   glEnable(GL_COLOR_MATERIAL);
   setupAmbientLighting();
 
-  /// The first three numbers are the xyz, and the 4th number is a boolean
-  /// controlling if this point light is infinitely far away or not.
   GLfloat purpleLampColor[] = {1, 0, 1, 1};
   glEnable(GL_LIGHT0);
-  GLfloat lightPosition[] = {0, 0, 0, 1};
-  glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
   glLightfv(GL_LIGHT0, GL_DIFFUSE, purpleLampColor);
   glLightfv(GL_LIGHT0, GL_SPECULAR, purpleLampColor);
 
   glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 2);
   glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.002);
   glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.01);
+}
+
+void repositionPointLight() {
+  /// The first three numbers are the xyz, and the 4th number is a boolean
+  /// controlling if this point light is infinitely far away or not.
+  /// We put (0,0,0) as the position becaue this is aware of the current model
+  /// view matrix and the translations will be inferred from that.
+  GLfloat lightPosition[] = {0, 0, 0, 1};
+  glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
 }
 
 void glVertexPoint(Point p) { glVertex3f(p.x, p.y, p.z); }
@@ -259,7 +264,7 @@ void drawLamp() {
 
   gluDeleteQuadric(quadric);
 
-  setupLighting();
+  repositionPointLight();
   glPopMatrix();
 }
 
@@ -652,6 +657,7 @@ int main(int argc, char **argv) {
   glEnable(GL_MULTISAMPLE);
   glEnable(GL_BLEND);                                // Enable blending.
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // Set blending function.
+  setupLighting();
 
   // This makes specular lighting respect the current point of view.
   glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
