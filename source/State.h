@@ -14,7 +14,7 @@
 enum ControlMode { Robot, RobotHead, UpperArm, LowerArm, Hand, Camera };
 enum PointOfView { FirstPerson, ThirdPerson };
 
-enum ActiveMenue {None, Main, Help, Options};
+enum ActiveMenue { None, Main, Help, Options };
 
 struct Transform {
   Point position;
@@ -63,7 +63,7 @@ struct ControlCommands {
         isMovingUp(false), isMovingDown(false) {}
 };
 
-struct ViewportInfo{
+struct ViewportInfo {
   GLint x;
   GLint y;
   GLsizei width;
@@ -97,23 +97,23 @@ struct State {
   GLint PointLightB;
   GLint PointLightI;
 
-
   State()
       : pointOfView(ThirdPerson), controlMode(Robot), controlCommands(),
         robot({{0, 0, 0}, {1, 0, 0}}, Quaternion::identity(),
               Quaternion::identity(), Quaternion::identity(),
               Quaternion::identity()),
         camera({{5, 5, 5}, Quaternion(0.88, -0.325, 0.325, 0)}),
-        displayDebugInfo(false) , activeMenue(Help),
-        AmbientR(255), AmbientG(255), AmbientB(255), AmbientI(150),
-        PointLightR(255), PointLightG(255), PointLightB(255), PointLightI(255) {}
+        displayDebugInfo(false), activeMenue(None), AmbientR(255),
+        AmbientG(255), AmbientB(255), AmbientI(150), PointLightR(255),
+        PointLightG(255), PointLightB(255), PointLightI(255) {}
 };
 
 inline void moveForwardAndBackwords(Transform &t,
                                     ControlCommands controlCommands,
                                     bool shouldInvertForwardDirection,
                                     double deltaTime) {
-  Point forward = t.quaternion.getForwardVector() * (shouldInvertForwardDirection ? -1 : 1);
+  Point forward =
+      t.quaternion.getForwardVector() * (shouldInvertForwardDirection ? -1 : 1);
 
   if (controlCommands.isMovingForward) {
     t.position += forward * MOVE_SPEED * deltaTime;
