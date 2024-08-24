@@ -34,6 +34,7 @@ GLfloat lowerArmColor[] = {0.2f, 0.8f, 0.2f, 1.0f};
 void drawWoodenDoor(); // Add this line to draw the door
 void renderFloor();
 void drawLamp();
+void updateAmbientLighting();
 void setupViewport();
 void clearMatrices();
 void pushMatrices();
@@ -136,7 +137,7 @@ void displayFunc() {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   setupViewport();
   clearMatrices();
-  setupLighting();
+  updateAmbientLighting();
   setupCamera(state.camera, state.robot, state.pointOfView);
   setupProjection();
   renderFloor();
@@ -202,7 +203,7 @@ void popMatrices() {
   glPopMatrix();
 }
 
-void setupAmbientLighting() {
+void updateAmbientLighting() {
   GLfloat intensityMultipler = state.AmbientI / 255.0f;
   GLfloat ambiant[] = {state.AmbientR / 255.0f * intensityMultipler,
                        state.AmbientG / 255.0f * intensityMultipler,
@@ -213,25 +214,27 @@ void setupAmbientLighting() {
 void setupLighting() {
   glEnable(GL_LIGHTING);
   glEnable(GL_COLOR_MATERIAL);
-  setupAmbientLighting();
 
-  GLfloat purpleLampColor[] = {1, 0, 1, 1};
   glEnable(GL_LIGHT0);
-  glLightfv(GL_LIGHT0, GL_DIFFUSE, purpleLampColor);
-  glLightfv(GL_LIGHT0, GL_SPECULAR, purpleLampColor);
-
   glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 2);
   glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.002);
   glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.01);
 }
 
-void repositionPointLight() {
+void updatePointLight() {
   /// The first three numbers are the xyz, and the 4th number is a boolean
   /// controlling if this point light is infinitely far away or not.
   /// We put (0,0,0) as the position becaue this is aware of the current model
   /// view matrix and the translations will be inferred from that.
   GLfloat lightPosition[] = {0, 0, 0, 1};
   glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
+
+  GLfloat intensityMultipler = state.PointLightI / 255.0f;
+  GLfloat ambiant[] = {state.PointLightR / 255.0f * intensityMultipler,
+                       state.PointLightG / 255.0f * intensityMultipler,
+                       state.PointLightB / 255.0f * intensityMultipler, 1.0f};
+  glLightfv(GL_LIGHT0, GL_DIFFUSE, ambiant);
+  glLightfv(GL_LIGHT0, GL_SPECULAR, ambiant);
 }
 
 void glVertexPoint(Point p) { glVertex3f(p.x, p.y, p.z); }
@@ -264,7 +267,7 @@ void drawLamp() {
 
   gluDeleteQuadric(quadric);
 
-  repositionPointLight();
+  updatePointLight();
   glPopMatrix();
 }
 
