@@ -275,10 +275,10 @@ void drawWoodenDoor() {
   GLfloat wood_shininess = 0.0f;
 
   glColor4fv(wood_ambient_and_diffuse);
-  glMaterialfv(GL_FRONT, GL_AMBIENT, wood_ambient_and_diffuse);
-  glMaterialfv(GL_FRONT, GL_DIFFUSE, wood_ambient_and_diffuse);
-  glMaterialfv(GL_FRONT, GL_SPECULAR, wood_specular);
-  glMaterialf(GL_FRONT, GL_SHININESS, wood_shininess);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, wood_ambient_and_diffuse);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, wood_ambient_and_diffuse);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, wood_specular);
+  glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, wood_shininess);
 
   // Door frame
   glPushMatrix();
@@ -288,10 +288,10 @@ void drawWoodenDoor() {
 
   // Door door knob (metallic sphere)
   glColor4fv(metal_ambient);
-  glMaterialfv(GL_FRONT, GL_AMBIENT, metal_ambient);
-  glMaterialfv(GL_FRONT, GL_DIFFUSE, metal_diffuse);
-  glMaterialfv(GL_FRONT, GL_SPECULAR, metal_specular);
-  glMaterialf(GL_FRONT, GL_SHININESS, metal_shininess);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, metal_ambient);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, metal_diffuse);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, metal_specular);
+  glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, metal_shininess);
 
   glPushMatrix();
   glTranslatef(0.35, 0, 0.1);
@@ -456,8 +456,8 @@ void renderFloor() {
 
   // configure the floor to be shiny
   GLfloat floorSpecularColor[] = {1.0f, 1.0f, 1.0f, 1.0f};
-  glMaterialfv(GL_FRONT, GL_SPECULAR, floorSpecularColor);
-  glMaterialf(GL_FRONT, GL_SHININESS, 5.0f);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, floorSpecularColor);
+  glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 5.0f);
   glColor3fv(whiteColor);
 
   glScalef(10, 1, 10);
@@ -479,8 +479,8 @@ void renderFloor() {
   // turn off the specular that was used for the floor, so we won't affect other
   // objects in the scene.
   GLfloat zeroIntensityColor[] = {0.0f, 0.0f, 0.0f, 0.0f};
-  glMaterialfv(GL_FRONT, GL_SPECULAR, zeroIntensityColor);
-  glMaterialf(GL_FRONT, GL_SHININESS, 0);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, zeroIntensityColor);
+  glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0);
 
   glPopMatrix();
   glDisable(GL_TEXTURE_2D);
@@ -644,7 +644,7 @@ int main(int argc, char **argv) {
   glutCreateWindow("Final project.");
   glutInitDisplayMode(GLUT_DEPTH);
   glEnable(GL_DEPTH_TEST);
-  glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
+  glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
   glEnable(GL_MULTISAMPLE);
   glEnable(GL_BLEND);                                // Enable blending.
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // Set blending function.
