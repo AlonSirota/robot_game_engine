@@ -103,30 +103,30 @@ void setupCamera(Transform camera, struct Robot robot, PointOfView pov) {
 
 void drawTeapot() {
   glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
+  glPushMatrix();
 
-    glTranslatef(2, 0, 2);
-    
-    // Set up metallic material properties
-    glColor4fv(metal_ambient);
-    GLfloat metal_ambient[] = {0.3f, 0.3f, 0.3f, 1.0f};
-    GLfloat metal_diffuse[] = {0.7f, 0.7f, 0.7f, 1.0f};
-    GLfloat metal_specular[] = {1.0f, 1.0f, 1.0f, 1.0f};
-    GLfloat metal_shininess = 200.0f;  // Increased for a more polished look
+  glTranslatef(2, 0, 2);
 
-    glColor3f(0.85, 0.85, 0.85);
+  // Set up metallic material properties
+  glColor4fv(metal_ambient);
+  GLfloat metal_ambient[] = {0.3f, 0.3f, 0.3f, 1.0f};
+  GLfloat metal_diffuse[] = {0.7f, 0.7f, 0.7f, 1.0f};
+  GLfloat metal_specular[] = {1.0f, 1.0f, 1.0f, 1.0f};
+  GLfloat metal_shininess = 200.0f; // Increased for a more polished look
 
-    // Apply material properties
-    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, metal_ambient);
-    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, metal_diffuse);
-    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, metal_specular);
-    glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, metal_shininess);
+  glColor3f(0.85, 0.85, 0.85);
 
-    // Position and draw the teapot
-    glTranslatef(0, 1, 0);
-    glutSolidTeapot(1);
+  // Apply material properties
+  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, metal_ambient);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, metal_diffuse);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, metal_specular);
+  glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, metal_shininess);
 
-    glPopMatrix();
+  // Position and draw the teapot
+  glTranslatef(0, 1, 0);
+  glutSolidTeapot(1);
+
+  glPopMatrix();
 }
 
 void displayFunc() {
