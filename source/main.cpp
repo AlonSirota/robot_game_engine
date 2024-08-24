@@ -45,6 +45,7 @@ void drawLamp();
 void updateAmbientLighting();
 void setupViewport();
 void setupLighting();
+void addSkyBox();
 void setupCamera(Transform camera, struct Robot robot, PointOfView pov);
 void displayFunc();
 void displayRobot(struct Robot robot);
@@ -124,8 +125,8 @@ void initFloorTexture() {
 void displayFunc() {
   double frameStartTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0;
 
-  // set teal color for background.
-  glClearColor(0.5, 0.8, 0.8, 1.0f);
+  //black bars around scene
+  glClearColor(0.0, 0.0, 0.0, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   setupViewport();
@@ -133,6 +134,7 @@ void displayFunc() {
   updateAmbientLighting();
   setupCamera(state.camera, state.robot, state.pointOfView);
   setupProjection();
+  addSkyBox();
   drawFloor();
   drawTeapot();
   drawLamp();
@@ -158,6 +160,18 @@ void clearMatrices() {
   glLoadIdentity();
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
+}
+
+void addSkyBox(){
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
+  glLoadIdentity();//clear transformations, skybox is centerec around camera
+  
+  // set teal color for background.
+  glColor4f(0.5f, 0.8f, 0.8f, 1.0f);
+  glutSolidCube(99.99);//far plane is at 100
+
+  glPopMatrix();
 }
 
 void updateAmbientLighting() {
