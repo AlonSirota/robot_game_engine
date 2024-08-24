@@ -124,11 +124,13 @@ inline void moveForwardAndBackwords(Transform &t,
 
 inline void moveLeftAndRight(Transform &t,
                              const ControlCommands &controlCommands,
-                             double deltaTime) {
+                             bool shouldInvertDirection, double deltaTime) {
+  Point right =
+      t.quaternion.getRightVector() * (shouldInvertDirection ? -1 : 1);
   if (controlCommands.isMovingLeft) {
-    t.position -= t.quaternion.getRightVector() * MOVE_SPEED * deltaTime;
+    t.position += right * MOVE_SPEED * deltaTime;
   } else if (controlCommands.isMovingRight) {
-    t.position += t.quaternion.getRightVector() * MOVE_SPEED * deltaTime;
+    t.position -= right * MOVE_SPEED * deltaTime;
   }
 }
 
@@ -175,7 +177,7 @@ inline void updatedState(State &currentState, double deltaTime) {
     moveForwardAndBackwords(currentState.robot.transform,
                             currentState.controlCommands, false, deltaTime);
     moveLeftAndRight(currentState.robot.transform, currentState.controlCommands,
-                     deltaTime);
+                     false, deltaTime);
     rotateLeftAndRight(currentState.robot.transform.quaternion,
                        currentState.controlCommands, deltaTime,
                        ROBOT_ROTATION_SPEED);
@@ -191,7 +193,7 @@ inline void updatedState(State &currentState, double deltaTime) {
   case Camera:
     moveForwardAndBackwords(currentState.camera, currentState.controlCommands,
                             true, deltaTime);
-    moveLeftAndRight(currentState.camera, currentState.controlCommands,
+    moveLeftAndRight(currentState.camera, currentState.controlCommands, true,
                      deltaTime);
     rotateUpAndDown(currentState.camera.quaternion,
                     currentState.controlCommands, deltaTime,
