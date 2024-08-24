@@ -14,31 +14,35 @@
 #define CHECKERBOARD_SIZE 4
 #define ROBOT_HEAD_HEIGHT 1.0
 
+// helpful const values.
 GLuint floorTextureId;
-
 GLfloat redColor[] = {1.0f, 0.0f, 0.0f, 1.0f};
 GLfloat greenColor[] = {0.0f, 1.0f, 0.0f, 1.0f};
 GLfloat blueColor[] = {0.0f, 0.0f, 1.0f, 1.0f};
 GLfloat whiteColor[] = {1.0f, 1.0f, 1.0f, 1.0f};
 GLfloat gray1Color[] = {0.5f, 0.5f, 0.5f, 1.0f};
 GLfloat gray2Color[] = {0.7f, 0.7f, 0.7f, 1.0f};
-GLfloat metal_ambient[] = {0.5f, 0.5f, 0.5f, 1.0f};
-GLfloat metal_diffuse[] = {0.7f, 0.7f, 0.7f, 1.0f};
-GLfloat metal_specular[] = {1.0f, 1.0f, 1.0f, 1.0f};
+GLfloat metal_ambient_color[] = {0.5f, 0.5f, 0.5f, 1.0f};
+GLfloat metal_diffuse_color[] = {0.7f, 0.7f, 0.7f, 1.0f};
+GLfloat metal_specular_color[] = {1.0f, 1.0f, 1.0f, 1.0f};
 GLfloat metal_shininess = 20.0f;
-
 GLfloat clawColor[] = {0.2f, 0.2f, 1.0f, 1.0f};
 GLfloat upperArmColor[] = {0.8f, 0.3f, 0.3f, 1.0f};
 GLfloat lowerArmColor[] = {0.2f, 0.8f, 0.2f, 1.0f};
 
-void drawWoodenDoor(); // Add this line to draw the door
+// Global state.
+double presentedTime = 0;
+State state = State();
+UIManager uiManager(&state);
+
+void clearMatrices();
+void pushMatrices();
+void popMatrices();
+void drawWoodenDoor();
 void renderFloor();
 void drawLamp();
 void updateAmbientLighting();
 void setupViewport();
-void clearMatrices();
-void pushMatrices();
-void popMatrices();
 void setupLighting();
 void setupCamera(Transform camera, struct Robot robot, PointOfView pov);
 void displayFunc();
@@ -49,11 +53,61 @@ void mouseFunc(int button, int state, int x, int y);
 void idleFunc();
 void PostRedisplayWrapper(int);
 void displayUI();
+void specialKeyboardKeysFunc(int key, int x, int y);
+void specialKeyboardKeysUpFunc(int key, int x, int y);
+void initFloorTexture();
 
-double presentedTime = 0;
-State state = State();
+int main(int argc, char **argv) {
+  glutInit(&argc, argv);
+  glutInitWindowSize(600, 1000);
+  glutCreateWindow("Final project.");
+  glutInitDisplayMode(GLUT_DEPTH);
+  glEnable(GL_DEPTH_TEST);
+  glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+  glEnable(GL_MULTISAMPLE);
+  glEnable(GL_BLEND);                                // Enable blending.
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // Set blending function.
+  setupLighting();
 
-UIManager uiManager(&state);
+  // This makes specular lighting respect the current point of view.
+  glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
+
+  initFloorTexture();
+  glutDisplayFunc(displayFunc);
+  glutIdleFunc(idleFunc);
+  glutKeyboardFunc(keyboardFunc);
+  glutKeyboardUpFunc(keyboardUpFunc);
+  glutMouseFunc(mouseFunc);
+  glutSpecialFunc(specialKeyboardKeysFunc);
+  glutSpecialUpFunc(specialKeyboardKeysUpFunc);
+
+  glutMainLoop();
+  return 0;
+}
+
+/// Generates a texture programatically and store it with the ID
+/// `floorTextureID`.
+void initFloorTexture() {
+  // Initialize checkerboard matrix with white and black squares.
+  GLubyte checkerboard[CHECKERBOARD_SIZE][CHECKERBOARD_SIZE][3];
+  for (int i = 0; i < CHECKERBOARD_SIZE; i++) {
+    for (int j = 0; j < CHECKERBOARD_SIZE; j++) {
+      GLubyte intensity = ((i + j) % 2 == 0) ? 255 : 0;
+      checkerboard[i][j][0] = intensity; // Red
+      checkerboard[i][j][1] = intensity; // Green
+      checkerboard[i][j][2] = intensity; // Blue
+    }
+  }
+
+  glGenTextures(1, &floorTextureId);
+  glBindTexture(GL_TEXTURE_2D, floorTextureId);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, CHECKERBOARD_SIZE, CHECKERBOARD_SIZE,
+               0, GL_RGB, GL_UNSIGNED_BYTE, checkerboard);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+}
 
 void setupProjection() {
   glMatrixMode(GL_PROJECTION);
@@ -109,7 +163,7 @@ void drawTeapot() {
   glTranslatef(2, 0, 2);
 
   // Set up metallic material properties
-  glColor4fv(metal_ambient);
+  glColor4fv(metal_ambient_color);
   GLfloat metal_ambient[] = {0.3f, 0.3f, 0.3f, 1.0f};
   GLfloat metal_diffuse[] = {0.7f, 0.7f, 0.7f, 1.0f};
   GLfloat metal_specular[] = {1.0f, 1.0f, 1.0f, 1.0f};
@@ -299,10 +353,10 @@ void drawWoodenDoor() {
   glPopMatrix();
 
   // Door door knob (metallic sphere)
-  glColor4fv(metal_ambient);
-  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, metal_ambient);
-  glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, metal_diffuse);
-  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, metal_specular);
+  glColor4fv(metal_ambient_color);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, metal_ambient_color);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, metal_diffuse_color);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, metal_specular_color);
   glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, metal_shininess);
 
   glPushMatrix();
@@ -628,53 +682,3 @@ void idleFunc() {
 }
 
 void PostRedisplayWrapper(int) { glutPostRedisplay(); }
-
-void initFloorTexture() {
-  // Initialize checkerboard matrix with white and black squares.
-  GLubyte checkerboard[CHECKERBOARD_SIZE][CHECKERBOARD_SIZE][3];
-  for (int i = 0; i < CHECKERBOARD_SIZE; i++) {
-    for (int j = 0; j < CHECKERBOARD_SIZE; j++) {
-      GLubyte intensity = ((i + j) % 2 == 0) ? 255 : 0;
-      checkerboard[i][j][0] = intensity; // Red
-      checkerboard[i][j][1] = intensity; // Green
-      checkerboard[i][j][2] = intensity; // Blue
-    }
-  }
-
-  glGenTextures(1, &floorTextureId);
-  glBindTexture(GL_TEXTURE_2D, floorTextureId);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, CHECKERBOARD_SIZE, CHECKERBOARD_SIZE,
-               0, GL_RGB, GL_UNSIGNED_BYTE, checkerboard);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-}
-
-int main(int argc, char **argv) {
-  glutInit(&argc, argv);
-  glutInitWindowSize(600, 1000);
-  glutCreateWindow("Final project.");
-  glutInitDisplayMode(GLUT_DEPTH);
-  glEnable(GL_DEPTH_TEST);
-  glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-  glEnable(GL_MULTISAMPLE);
-  glEnable(GL_BLEND);                                // Enable blending.
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // Set blending function.
-  setupLighting();
-
-  // This makes specular lighting respect the current point of view.
-  glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
-
-  initFloorTexture();
-  glutDisplayFunc(displayFunc);
-  glutIdleFunc(idleFunc);
-  glutKeyboardFunc(keyboardFunc);
-  glutKeyboardUpFunc(keyboardUpFunc);
-  glutMouseFunc(mouseFunc);
-  glutSpecialFunc(specialKeyboardKeysFunc);
-  glutSpecialUpFunc(specialKeyboardKeysUpFunc);
-
-  glutMainLoop();
-  return 0;
-}
