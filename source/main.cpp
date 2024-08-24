@@ -39,7 +39,8 @@ void clearMatrices();
 void pushMatrices();
 void popMatrices();
 void drawWoodenDoor();
-void renderFloor();
+void drawFloor();
+void drawTeapot();
 void drawLamp();
 void updateAmbientLighting();
 void setupViewport();
@@ -56,6 +57,15 @@ void displayUI();
 void specialKeyboardKeysFunc(int key, int x, int y);
 void specialKeyboardKeysUpFunc(int key, int x, int y);
 void initFloorTexture();
+void setupProjection();
+void gluLookAt(Point camera, Point target, Point up);
+void updatePointLight();
+void glVertexPoint(Point p);
+void glTranslatePoint(Point p);
+void displayRobotTorso();
+void displayRobotHead(Quaternion quaternion);
+void displayRobotArm(Quaternion armRotation, Quaternion elbowRotation,
+                     Quaternion handRotation);
 
 int main(int argc, char **argv) {
   glutInit(&argc, argv);
@@ -109,15 +119,53 @@ void initFloorTexture() {
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 }
 
-void setupProjection() {
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  gluPerspective(45, RENDER_ASPECT_RATIO, 1, 100);
+// Display func section.
+
+void displayFunc() {
+  double frameStartTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0;
+
+  // set teal color for background.
+  glClearColor(0.5, 0.8, 0.8, 1.0f);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  setupViewport();
+  clearMatrices();
+  updateAmbientLighting();
+  setupCamera(state.camera, state.robot, state.pointOfView);
+  setupProjection();
+  drawFloor();
+  drawTeapot();
+  drawLamp();
+  drawWoodenDoor();
+  displayRobot(state.robot);
+  displayUI();
+
+  glFlush();
+
+  double frameEndTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0;
+  double delta = frameEndTime - frameStartTime;
+  double timeToNextFrame = TARGET_DELTA_BETWEEN_FRAMES_MS - delta;
+
+  if (timeToNextFrame <= 0) {
+    timeToNextFrame = 0; // TODO: mark frame skipped, add to log
+  }
+
+  glutTimerFunc(timeToNextFrame, PostRedisplayWrapper, 0);
 }
 
-void gluLookAt(Point camera, Point target, Point up) {
-  gluLookAt(camera.x, camera.y, camera.z, target.x, target.y, target.z, up.x,
-            up.y, up.z);
+void clearMatrices() {
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+}
+
+void updateAmbientLighting() {
+  GLfloat intensityMultipler = state.AmbientI / 255.0f;
+  GLfloat ambiant[] = {state.AmbientR / 255.0f * intensityMultipler,
+                       state.AmbientG / 255.0f * intensityMultipler,
+                       state.AmbientB / 255.0f * intensityMultipler, 1.0f};
+  glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambiant);
 }
 
 void setupCamera(Transform camera, struct Robot robot, PointOfView pov) {
@@ -156,6 +204,56 @@ void setupCamera(Transform camera, struct Robot robot, PointOfView pov) {
   gluLookAt(pointOfViewPosition, target, up);
 }
 
+void gluLookAt(Point camera, Point target, Point up) {
+  gluLookAt(camera.x, camera.y, camera.z, target.x, target.y, target.z, up.x,
+            up.y, up.z);
+}
+
+void setupProjection() {
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  gluPerspective(45, RENDER_ASPECT_RATIO, 1, 100);
+}
+
+void drawFloor() {
+  glEnable(GL_TEXTURE_2D);
+  glBindTexture(GL_TEXTURE_2D, floorTextureId);
+
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
+
+  // configure the floor to be shiny
+  GLfloat floorSpecularColor[] = {1.0f, 1.0f, 1.0f, 1.0f};
+  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, floorSpecularColor);
+  glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 5.0f);
+  glColor3fv(whiteColor);
+
+  glScalef(10, 1, 10);
+
+  // The texture is configured to repeat.
+  int textureRepeatCount = 4;
+  glBegin(GL_QUADS);
+  glNormal3f(0, 1, 0);
+  glTexCoord2f(0, 0);
+  glVertex3f(-1, 0, -1);
+  glTexCoord2f(textureRepeatCount, 0);
+  glVertex3f(1, 0, -1);
+  glTexCoord2f(textureRepeatCount, textureRepeatCount);
+  glVertex3f(1, 0, 1);
+  glTexCoord2f(0, textureRepeatCount);
+  glVertex3f(-1, 0, 1);
+  glEnd();
+
+  // turn off the specular that was used for the floor, so we won't affect other
+  // objects in the scene.
+  GLfloat zeroIntensityColor[] = {0.0f, 0.0f, 0.0f, 0.0f};
+  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, zeroIntensityColor);
+  glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0);
+
+  glPopMatrix();
+  glDisable(GL_TEXTURE_2D);
+}
+
 void drawTeapot() {
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
@@ -183,117 +281,6 @@ void drawTeapot() {
 
   glPopMatrix();
 }
-
-void displayFunc() {
-  double frameStartTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0;
-
-  glClearColor(0.5, 0.8, 0.8, 1.0f);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  setupViewport();
-  clearMatrices();
-  updateAmbientLighting();
-  setupCamera(state.camera, state.robot, state.pointOfView);
-  setupProjection();
-  renderFloor();
-  drawTeapot();
-  drawLamp();
-  drawWoodenDoor();
-  displayRobot(state.robot);
-  displayUI();
-
-  glFlush();
-
-  double frameEndTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0;
-  double delta = frameEndTime - frameStartTime;
-  double timeToNextFrame = TARGET_DELTA_BETWEEN_FRAMES_MS - delta;
-
-  if (timeToNextFrame <= 0) {
-    timeToNextFrame = 0; // TODO: mark frame skipped, add to log
-  }
-
-  glutTimerFunc(timeToNextFrame, PostRedisplayWrapper, 0);
-}
-
-void setupViewport() {
-  int width = state.windowWidth, left = 0, hight = state.windowHeight,
-      bottom = 0;
-
-  if (state.windowHeight * RENDER_ASPECT_RATIO < state.windowWidth) {
-    width = state.windowHeight *
-            (RENDER_ASPECT_RATIO); // w is width adjusted for aspect ratio
-    left = (state.windowWidth - width) / 2;
-  } else {
-    hight = state.windowWidth *
-            (1.0 / RENDER_ASPECT_RATIO); // w is width adjusted for aspect ratio
-    bottom = (state.windowHeight - hight) / 2;
-  }
-
-  glViewport(left, bottom, width,
-             hight); // fix up the viewport to maintain aspect ratio
-  state.viewportInfo.x = left;
-  state.viewportInfo.y = bottom;
-  state.viewportInfo.width = width;
-  state.viewportInfo.hight = hight;
-}
-
-void clearMatrices() {
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-}
-
-void pushMatrices() {
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
-  glMatrixMode(GL_PROJECTION);
-  glPushMatrix();
-}
-
-void popMatrices() {
-  glMatrixMode(GL_MODELVIEW);
-  glPopMatrix();
-  glMatrixMode(GL_PROJECTION);
-  glPopMatrix();
-}
-
-void updateAmbientLighting() {
-  GLfloat intensityMultipler = state.AmbientI / 255.0f;
-  GLfloat ambiant[] = {state.AmbientR / 255.0f * intensityMultipler,
-                       state.AmbientG / 255.0f * intensityMultipler,
-                       state.AmbientB / 255.0f * intensityMultipler, 1.0f};
-  glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambiant);
-}
-
-void setupLighting() {
-  glEnable(GL_LIGHTING);
-  glEnable(GL_COLOR_MATERIAL);
-
-  glEnable(GL_LIGHT0);
-  glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 2);
-  glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.002);
-  glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.01);
-}
-
-void updatePointLight() {
-  /// The first three numbers are the xyz, and the 4th number is a boolean
-  /// controlling if this point light is infinitely far away or not.
-  /// We put (0,0,0) as the position becaue this is aware of the current model
-  /// view matrix and the translations will be inferred from that.
-  GLfloat lightPosition[] = {0, 0, 0, 1};
-  glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
-
-  GLfloat intensityMultipler = state.PointLightI / 255.0f;
-  GLfloat ambiant[] = {state.PointLightR / 255.0f * intensityMultipler,
-                       state.PointLightG / 255.0f * intensityMultipler,
-                       state.PointLightB / 255.0f * intensityMultipler, 1.0f};
-  glLightfv(GL_LIGHT0, GL_DIFFUSE, ambiant);
-  glLightfv(GL_LIGHT0, GL_SPECULAR, ambiant);
-}
-
-void glVertexPoint(Point p) { glVertex3f(p.x, p.y, p.z); }
-
-void glTranslatePoint(Point p) { glTranslatef(p.x, p.y, p.z); }
 
 void drawLamp() {
   glMatrixMode(GL_MODELVIEW);
@@ -324,6 +311,22 @@ void drawLamp() {
 
   updatePointLight();
   glPopMatrix();
+}
+
+void updatePointLight() {
+  /// The first three numbers are the xyz, and the 4th number is a boolean
+  /// controlling if this point light is infinitely far away or not.
+  /// We put (0,0,0) as the position becaue this is aware of the current model
+  /// view matrix and the translations will be inferred from that.
+  GLfloat lightPosition[] = {0, 0, 0, 1};
+  glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
+
+  GLfloat intensityMultipler = state.PointLightI / 255.0f;
+  GLfloat ambiant[] = {state.PointLightR / 255.0f * intensityMultipler,
+                       state.PointLightG / 255.0f * intensityMultipler,
+                       state.PointLightB / 255.0f * intensityMultipler, 1.0f};
+  glLightfv(GL_LIGHT0, GL_DIFFUSE, ambiant);
+  glLightfv(GL_LIGHT0, GL_SPECULAR, ambiant);
 }
 
 void drawWoodenDoor() {
@@ -363,6 +366,19 @@ void drawWoodenDoor() {
   glTranslatef(0.35, 0, 0.1);
   glutSolidSphere(0.09, 20, 20);
   glPopMatrix();
+
+  glPopMatrix();
+}
+
+void displayRobot(struct Robot robot) {
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
+  glTranslatePoint(robot.transform.position);
+  glMultMatrixf(robot.transform.quaternion.toMatrix());
+
+  displayRobotTorso();
+  displayRobotHead(robot.headRotationRelativeToTransform);
+  displayRobotArm(robot.armRotation, robot.elbowRotation, robot.handRotation);
 
   glPopMatrix();
 }
@@ -490,18 +506,56 @@ void displayRobotArm(Quaternion armRotation, Quaternion elbowRotation,
   glPopMatrix();
 }
 
-void displayRobot(struct Robot robot) {
+// Helper functions.
+void glVertexPoint(Point p) { glVertex3f(p.x, p.y, p.z); }
+void glTranslatePoint(Point p) { glTranslatef(p.x, p.y, p.z); }
+
+void pushMatrices() {
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
-  glTranslatePoint(robot.transform.position);
-  glMultMatrixf(robot.transform.quaternion.toMatrix());
+  glMatrixMode(GL_PROJECTION);
+  glPushMatrix();
+}
 
-  displayRobotTorso();
-  displayRobotHead(robot.headRotationRelativeToTransform);
-  displayRobotArm(robot.armRotation, robot.elbowRotation, robot.handRotation);
-
+void popMatrices() {
+  glMatrixMode(GL_MODELVIEW);
+  glPopMatrix();
+  glMatrixMode(GL_PROJECTION);
   glPopMatrix();
 }
+
+void setupViewport() {
+  int width = state.windowWidth, left = 0, hight = state.windowHeight,
+      bottom = 0;
+
+  if (state.windowHeight * RENDER_ASPECT_RATIO < state.windowWidth) {
+    width = state.windowHeight *
+            (RENDER_ASPECT_RATIO); // w is width adjusted for aspect ratio
+    left = (state.windowWidth - width) / 2;
+  } else {
+    hight = state.windowWidth *
+            (1.0 / RENDER_ASPECT_RATIO); // w is width adjusted for aspect ratio
+    bottom = (state.windowHeight - hight) / 2;
+  }
+
+  glViewport(left, bottom, width,
+             hight); // fix up the viewport to maintain aspect ratio
+  state.viewportInfo.x = left;
+  state.viewportInfo.y = bottom;
+  state.viewportInfo.width = width;
+  state.viewportInfo.hight = hight;
+}
+
+void setupLighting() {
+  glEnable(GL_LIGHTING);
+  glEnable(GL_COLOR_MATERIAL);
+
+  glEnable(GL_LIGHT0);
+  glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 2);
+  glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.002);
+  glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.01);
+}
+
 void displayUI() {
   pushMatrices();
   clearMatrices();
@@ -514,46 +568,11 @@ void displayUI() {
   popMatrices();
 };
 
-void renderFloor() {
-  glEnable(GL_TEXTURE_2D);
-  glBindTexture(GL_TEXTURE_2D, floorTextureId);
-
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
-
-  // configure the floor to be shiny
-  GLfloat floorSpecularColor[] = {1.0f, 1.0f, 1.0f, 1.0f};
-  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, floorSpecularColor);
-  glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 5.0f);
-  glColor3fv(whiteColor);
-
-  glScalef(10, 1, 10);
-
-  // The texture is configured to repeat.
-  int textureRepeatCount = 4;
-  glBegin(GL_QUADS);
-  glNormal3f(0, 1, 0);
-  glTexCoord2f(0, 0);
-  glVertex3f(-1, 0, -1);
-  glTexCoord2f(textureRepeatCount, 0);
-  glVertex3f(1, 0, -1);
-  glTexCoord2f(textureRepeatCount, textureRepeatCount);
-  glVertex3f(1, 0, 1);
-  glTexCoord2f(0, textureRepeatCount);
-  glVertex3f(-1, 0, 1);
-  glEnd();
-
-  // turn off the specular that was used for the floor, so we won't affect other
-  // objects in the scene.
-  GLfloat zeroIntensityColor[] = {0.0f, 0.0f, 0.0f, 0.0f};
-  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, zeroIntensityColor);
-  glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0);
-
-  glPopMatrix();
-  glDisable(GL_TEXTURE_2D);
-}
+// End of display func section.
+// Start of input handling section.
 
 void keyboardFunc(unsigned char key, int x, int y) {
+  // 27 is the escape key, clicking it toggles the menu.
   if (key == 27) {
     if (state.activeMenue == None) {
       state.activeMenue = Main;
@@ -672,10 +691,15 @@ void mouseFunc(int button, int mState, int mX, int mY) {
   }
 }
 
+// End of input handling section.
+
 void idleFunc() {
+  // Update the delta time between the last time we updated the state.
   double currentTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0;
   double deltaTime = currentTime - presentedTime;
 
+  // Updates the state, uses the delta time to change the state with consistent
+  // speed that doesn't change relative to the frames per second.
   updatedState(state, deltaTime);
 
   presentedTime = currentTime;
