@@ -80,3 +80,38 @@ bool SolidColorCircle::MouseClick(double mX, double mY){
 
     return isInside;
 }
+
+SolidColorTriangle::SolidColorTriangle(State *state, double posX, double posY, double side, double colorR, double colorG, double colorB, double alpha = 0):UIElement(state, posX, posY){
+    this->color[0] = colorR;
+    this->color[1] = colorG;
+    this->color[2] = colorB;
+    this->color[3] = alpha;
+
+    this->side = side;
+}
+
+void SolidColorTriangle::Draw(){
+    UIElement::Draw();
+    glColor4d(this->color[0], this->color[1], this->color[2], this->color[3]);
+    glBegin(GL_POLYGON);
+        glVertex2d(this->posX, this->posY);
+        glVertex2d(this->posX + this->side, this->posY);
+        glVertex2d(this->posX + (this->side / 2.0), this->posY + (this->side / 2.0));
+    glEnd();
+    glBegin(GL_POLYGON);
+        glVertex2d(this->posX, this->posY);
+        glVertex2d(this->posX + (this->side / 2.0), this->posY + (this->side / 2.0));
+        glVertex2d(this->posX + this->side, this->posY);
+    glEnd();
+}
+
+bool SolidColorTriangle::MouseClick(double mX, double mY){
+    //'lazy' box calculation
+    bool isInside = mX >= this->posX && mX <= this->posX + this->side && mY >= this->posY && mY <= this->posY + this->side;
+
+    if(isInside && this->OnClick != nullptr){
+        this->OnClick(this->state, mX, mY);
+    }
+
+    return isInside;
+}

@@ -33,3 +33,14 @@ public:
     bool MouseClick(double mX, double mY);
     void Draw();
 };
+
+class SolidColorTriangle : public UIElement{
+protected:
+    double side;
+public:
+    double color[4];
+
+    SolidColorTriangle(State *state, double posX, double posY, double side, double colorR, double colorG, double colorB, double alpha);
+    bool MouseClick(double mX, double mY);
+    void Draw();
+};
