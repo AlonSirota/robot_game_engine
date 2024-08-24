@@ -22,7 +22,7 @@ GLfloat blueColor[] = {0.0f, 0.0f, 1.0f, 1.0f};
 GLfloat whiteColor[] = {1.0f, 1.0f, 1.0f, 1.0f};
 GLfloat gray1Color[] = {0.5f, 0.5f, 0.5f, 1.0f};
 GLfloat gray2Color[] = {0.7f, 0.7f, 0.7f, 1.0f};
-GLfloat metal_ambient[] = {0.3f, 0.3f, 0.3f, 1.0f};
+GLfloat metal_ambient[] = {0.5f, 0.5f, 0.5f, 1.0f};
 GLfloat metal_diffuse[] = {0.7f, 0.7f, 0.7f, 1.0f};
 GLfloat metal_specular[] = {1.0f, 1.0f, 1.0f, 1.0f};
 GLfloat metal_shininess = 20.0f;
@@ -101,6 +101,33 @@ void setupCamera(Transform camera, struct Robot robot, PointOfView pov) {
   gluLookAt(pointOfViewPosition, target, up);
 }
 
+void drawTeapot() {
+    glPushMatrix();
+
+    glTranslatef(2, 0, 2);
+    
+    // Set up metallic material properties
+    glColor4fv(metal_ambient);
+    GLfloat metal_ambient[] = {0.3f, 0.3f, 0.3f, 1.0f};
+    GLfloat metal_diffuse[] = {0.7f, 0.7f, 0.7f, 1.0f};
+    GLfloat metal_specular[] = {1.0f, 1.0f, 1.0f, 1.0f};
+    GLfloat metal_shininess = 200.0f;  // Increased for a more polished look
+
+    glColor3f(0.85, 0.85, 0.85);
+
+    // Apply material properties
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, metal_ambient);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, metal_diffuse);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, metal_specular);
+    glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, metal_shininess);
+
+    // Position and draw the teapot
+    glTranslatef(0, 1, 0);
+    glutSolidTeapot(1);
+
+    glPopMatrix();
+}
+
 void displayFunc() {
   double frameStartTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0;
 
@@ -112,6 +139,7 @@ void displayFunc() {
   setupCamera(state.camera, state.robot, state.pointOfView);
   setupProjection();
   renderFloor();
+  drawTeapot();
   drawLamp();
   drawWoodenDoor();
   displayRobot(state.robot);
