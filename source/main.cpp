@@ -102,6 +102,7 @@ void setupCamera(Transform camera, struct Robot robot, PointOfView pov) {
 }
 
 void drawTeapot() {
+  glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
 
     glTranslatef(2, 0, 2);
@@ -233,6 +234,7 @@ void glVertexPoint(Point p) { glVertex3f(p.x, p.y, p.z); }
 void glTranslatePoint(Point p) { glTranslatef(p.x, p.y, p.z); }
 
 void drawLamp() {
+  glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
   // Position the lamp on the floor, in some arbitrary xz po
   glTranslatef(-3, 0, -4);
@@ -262,6 +264,7 @@ void drawLamp() {
 }
 
 void drawWoodenDoor() {
+  glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
 
   // Position the door
@@ -352,6 +355,7 @@ void displayClaw() {
 
   glColor3fv(clawColor);
 
+  glMatrixMode(GL_MODELVIEW);
   // Left prong.
   glPushMatrix();
   glRotatef(-clawOpennessDegrees, 0, 0,
