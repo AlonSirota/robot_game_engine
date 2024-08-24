@@ -1,1 +1,2 @@
-Formatter: clang_format (with default configuration).
+Technical details about this project.
+The main file is in charge of 
