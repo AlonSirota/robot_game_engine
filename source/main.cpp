@@ -245,7 +245,8 @@ void drawLamp() {
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
   // Position the lamp on the floor, in some arbitrary xz po
-  glTranslatef(-3, 0, -4);
+  glTranslatef(state.lampPosition.position.x, state.lampPosition.position.y,
+               state.lampPosition.position.z);
 
   // Draw the base (cylinder)
   GLUquadricObj *quadric = gluNewQuadric();

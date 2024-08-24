@@ -1,5 +1,6 @@
 #ifndef STATE_H
 #define STATE_H
+#include "Point.h"
 #include "Quaternion.h"
 
 #define MOVE_SPEED 5
@@ -11,7 +12,7 @@
 #define RENDER_HIGHT 1080
 #define RENDER_ASPECT_RATIO ((float)RENDER_WIDTH / (float)RENDER_HIGHT)
 
-enum ControlMode { Robot, RobotHead, UpperArm, LowerArm, Hand, Camera };
+enum ControlMode { Robot, RobotHead, UpperArm, LowerArm, Hand, Camera, Lamp };
 enum PointOfView { FirstPerson, ThirdPerson };
 
 enum ActiveMenue { None, Main, Help, Options };
@@ -96,6 +97,7 @@ struct State {
   GLint PointLightG;
   GLint PointLightB;
   GLint PointLightI;
+  Transform lampPosition;
 
   State()
       : pointOfView(ThirdPerson), controlMode(Robot), controlCommands(),
@@ -103,9 +105,10 @@ struct State {
               Quaternion::identity(), Quaternion::identity(),
               Quaternion::identity()),
         camera({{5, 5, 5}, Quaternion(0.88, -0.325, 0.325, 0)}),
-        displayDebugInfo(false) , activeMenue(None),
-        AmbientR(255), AmbientG(255), AmbientB(255), AmbientI(150),
-        PointLightR(255), PointLightG(255), PointLightB(255), PointLightI(255) {}
+        displayDebugInfo(false), activeMenue(None), AmbientR(255),
+        AmbientG(255), AmbientB(255), AmbientI(150), PointLightR(255),
+        PointLightG(255), PointLightB(255), PointLightI(255),
+        lampPosition({-5, 3, 0}, {1, 0, 0}) {}
 };
 
 inline void moveForwardAndBackwords(Transform &t,
@@ -217,6 +220,13 @@ inline void updatedState(State &currentState, double deltaTime) {
     rotateLeftAndRight(currentState.robot.handRotation,
                        currentState.controlCommands, deltaTime,
                        CAMERA_ROTATION_SPEED);
+  case Lamp:
+    moveForwardAndBackwords(currentState.lampPosition,
+                            currentState.controlCommands, false, deltaTime);
+    moveLeftAndRight(currentState.lampPosition, currentState.controlCommands,
+                     false, deltaTime);
+    moveUpAndDown(currentState.lampPosition, currentState.controlCommands,
+                  deltaTime);
     break;
   }
   currentState.windowHeight = glutGet(GLUT_WINDOW_HEIGHT);
