@@ -7,8 +7,8 @@ TextBox::TextBox(State *state, double posX, double posY, string text, double col
 };
 
 void TextBox::Draw(){
-    TextLable::Draw();
+    TextLable::Draw();//draw lable
     this->calculateDimentions();
     glColor3d(this->backgroundColor[0], this->backgroundColor[1], this->backgroundColor[2]);
-    glRectf(this->minX, this->minY, this->maxX, this->maxY);
+    glRectf(this->minX, this->minY, this->maxX, this->maxY);//draw box behind lable
 };

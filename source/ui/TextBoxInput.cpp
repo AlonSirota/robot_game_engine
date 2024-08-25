@@ -15,7 +15,7 @@ void TextBoxInput::KeyPress(unsigned char c){
         }else{
             this->text += ((char) c);
             TextBox::calculateDimentions();
-            if(this->maxX - this->minX > this->width){
+            if(this->maxX - this->minX > this->width){//if text too long, revert
                 this->text.pop_back();
             }
         }

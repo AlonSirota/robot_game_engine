@@ -18,7 +18,7 @@ void TextLable::Draw() {
 
   UIElement::Draw();
 
-  if (this->updateString != nullptr) {
+  if (this->updateString != nullptr) {//update string
     this->text.assign(this->updateString(this->state));
   }
 
@@ -29,8 +29,8 @@ void TextLable::Draw() {
   glColor3f(this->color[0], this->color[1], this->color[2]);
   glTranslated(this->posX, this->posY, 0);
   double scaleFactor =
-      RENDER_WIDTH / (glutStrokeWidthf(GLUT_STROKE_ROMAN, 'a') * 150);
-  scaleFactor *= this->textSize;
+      RENDER_WIDTH / (glutStrokeWidthf(GLUT_STROKE_ROMAN, 'a') * 150); // text width baseline is declared to be 150 'a' characters fit screen width
+  scaleFactor *= this->textSize;//multiply baseline by text size
   glScaled(scaleFactor, scaleFactor, scaleFactor);
   for(char c : this->text){
     glutStrokeCharacter(GLUT_STROKE_ROMAN, c);
