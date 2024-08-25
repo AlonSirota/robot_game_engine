@@ -4,6 +4,7 @@
 
 #include <cmath>
 
+// A struct modeling a 3d point, that can also be used as a 3-d vector.
 struct Point {
   Point(double x, double y, double z) : x(x), y(y), z(z) {}
   double x;

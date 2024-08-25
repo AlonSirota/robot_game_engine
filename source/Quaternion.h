@@ -76,12 +76,14 @@ struct Quaternion {
     return conjugate() / (magnitude() * magnitude());
   }
 
+  // rotate a point using the quaternion.
   Point rotatePoint(const Point &point) const {
     Quaternion p(0, point.x, point.y, point.z);
     Quaternion q = (*this) * p * inverse();
     return {q.x, q.y, q.z};
   }
 
+  // Calculates a 4x4 affine matrix that represents the quaternion's rotation.
   GLfloat *toMatrix() const {
     GLfloat *matrix = new GLfloat[16]; // TODO: this is a memory leak.
     matrix[0] = 1 - 2 * y * y - 2 * z * z;
